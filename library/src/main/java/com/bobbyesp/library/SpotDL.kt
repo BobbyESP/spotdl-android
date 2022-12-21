@@ -11,10 +11,10 @@ import java.util.*
 
 open class SpotDL {
 
-    protected val baseName = "spotdl-android"
+    val baseName = "spotdl-android"
 
-    protected val spotdlDirName = "spotdl"
-    protected val spotdlBin = "spotdl"
+    val spotdlDirName = "spotdl"
+    val spotdlBin = "spotdl"
 
     private val packagesRoot = "packages"
 
@@ -40,7 +40,7 @@ open class SpotDL {
 
     private val id2Process = Collections.synchronizedMap(HashMap<String, Process>())
 
-    protected val objectMapper = ObjectMapper()
+    val objectMapper = ObjectMapper()
 
     //create a function that can be called out of this class to get the instance
     companion object {
@@ -94,6 +94,7 @@ open class SpotDL {
             throw SpotDLException("Error initializing python and spotdl", e)
         }
 
+        initialized = true
     }
 
     @Throws(SpotDLException::class)
@@ -137,7 +138,7 @@ open class SpotDL {
     }
 
     @Throws(SpotDLException::class)
-    private fun initSpotDL(appContext: Context, spotDLdir: File) {
+    fun initSpotDL(appContext: Context, spotDLdir: File) {
         if (!spotDLdir.exists()) spotDLdir.mkdirs()
 
         val spotDlBinary: File = File(spotDLdir, spotdlBin)
@@ -151,5 +152,24 @@ open class SpotDL {
                 throw SpotDLException("Error extracting spotdl files", e)
             }
         }
+    }
+
+    @Throws(SpotDLException::class, InterruptedException::class)
+    fun execute(request: SpotDLRequest, processId: String, callback: DownloadProgressCallback): SpotDLRequest{
+        assertInit()
+       TODO("Implement this")
+    }
+
+    open fun version(appContext: Context): String? {
+        return SpotDLUpdater.getInstance().version(appContext)
+    }
+
+    @Throws(SpotDLException::class)
+    private fun assertInit() {
+        check(initialized) { "instance not initialized" }
+    }
+
+    enum class UpdateStatus {
+        DONE, ALREADY_UP_TO_DATE
     }
 }

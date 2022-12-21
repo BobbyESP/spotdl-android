@@ -1,4 +1,5 @@
 package com.bobbyesp.library
 
-class SpotDLResponse {
+open class SpotDLResponse {
+
 }
