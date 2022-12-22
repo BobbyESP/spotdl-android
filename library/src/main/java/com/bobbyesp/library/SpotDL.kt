@@ -1,12 +1,15 @@
 package com.bobbyesp.library
 
 import android.content.Context
+import android.os.Build
 import android.util.Log
 import com.bobbyesp.commonutilities.SharedPrefsHelper
 import com.bobbyesp.commonutilities.utils.ZipUtilities
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.apache.commons.io.FileUtils
 import java.io.File
+import java.io.IOException
+import java.io.InputStream
 import java.util.*
 
 open class SpotDL {
@@ -155,9 +158,123 @@ open class SpotDL {
     }
 
     @Throws(SpotDLException::class, InterruptedException::class)
-    fun execute(request: SpotDLRequest, processId: String, callback: DownloadProgressCallback): SpotDLRequest{
+    fun execute(
+        request: SpotDLRequest,
+        processId: String,
+        callback: DownloadProgressCallback?
+    ): SpotDLResponse {
         assertInit()
-       TODO("Implement this")
+        if (id2Process.containsKey(processId)) throw SpotDLException("Process ID already exists")
+        // disable caching unless explicitly requested
+        if (!request.hasOption("--cache-path") || request.getOption("--cache-path") == null) {
+            request.addOption("--no-cache")
+        }
+
+        var spotDLResponse: SpotDLResponse
+        val process: Process
+
+        var exitCode: Int = 0
+        val outBuffer = StringBuffer() //stdout
+
+        var errBuffer = StringBuffer() //stderr
+
+        var startTime = System.currentTimeMillis()
+
+        var args = request.buildCommand()
+
+        var command: List<String> = listOf(
+            pythonPath!!.absolutePath,
+            spotdlPath!!.absolutePath
+        )
+
+        val argsCollection: Collection<String> = args?.filterNotNull() ?: emptyList()
+
+        command.toMutableList().addAll(argsCollection)
+
+        val processBuilder = ProcessBuilder(command)
+        val env = processBuilder.environment()
+        env["LD_LIBRARY_PATH"] = ENV_LD_LIBRARY_PATH!!
+        env["SSL_CERT_FILE"] = ENV_SSL_CERT_FILE!!
+        env["PATH"] = System.getenv("PATH")!! + ":" + binDir!!.absolutePath
+        env["PYTHONHOME"] = ENV_PYTHONHOME!!
+
+        try {
+            process = processBuilder.start()
+            Log.d("SpotDL", "Process started. Process: $process")
+        } catch (e: IOException) {
+            throw SpotDLException("Error starting process", e)
+        }
+        Log.d("SpotDL", "Process started")
+
+        if (processId != null) {
+            id2Process[processId] = process
+        }
+
+        val outStream: InputStream = process.inputStream
+        Log.d("SpotDL", "Out stream: $outStream")
+        val errStream: InputStream = process.errorStream
+        Log.d("SpotDL", "Err stream: $errStream")
+
+        val stdOutProcessor: StreamProcessExtractor = StreamProcessExtractor(
+            outBuffer, outStream,
+            null
+        )
+
+        val stdErrProcessor: StreamProcessExtractor = StreamProcessExtractor(errBuffer, errStream)
+
+        try {
+            stdOutProcessor.join()
+            stdErrProcessor.join()
+            var exitCode = process.waitFor()
+        } catch (e: InterruptedException) {
+            try {
+                process.destroy()
+            } catch (e: Exception) {
+                Log.w("SpotDL", "Error destroying process or it was ignored", e)
+            }
+            if (processId != null) id2Process.remove(processId)
+            throw e
+        }
+
+        if (processId != null) id2Process.remove(processId)
+
+        val out = outBuffer.toString()
+        Log.d("SpotDL", "Stdout: $out")
+        val err = errBuffer.toString()
+
+        if(exitCode > 0 && !command.contains("--print-errors")) {
+            throw SpotDLException("Error executing command: $command, exit code: $exitCode, stderr: $err")
+        }
+
+        val elapsedTime = System.currentTimeMillis() - startTime
+
+        spotDLResponse = SpotDLResponse(command, exitCode, elapsedTime, out, err)
+
+        Log.d("SpotDL", "Process: $processId finished with exit code: $exitCode")
+        Log.d("SpotDL", "Process: $spotDLResponse")
+
+        return spotDLResponse
+    }
+
+
+    open fun destroyProcessById(id: String): Boolean {
+        if (id2Process.containsKey(id)) {
+            val p = id2Process[id]
+            var alive = true
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                if (!p!!.isAlive) {
+                    alive = false
+                }
+            }
+            if (alive) {
+                try {
+                    p!!.destroy()
+                    return true
+                } catch (ignored: Exception) {
+                }
+            }
+        }
+        return false
     }
 
     open fun version(appContext: Context): String? {

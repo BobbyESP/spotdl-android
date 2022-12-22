@@ -1,5 +1,7 @@
 package com.bobbyesp.library
 
+import android.util.Log
+
 open class SpotDLOptions {
 
     private var options: Map<String, List<String>> = LinkedHashMap()

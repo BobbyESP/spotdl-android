@@ -1,5 +1,7 @@
 package com.bobbyesp.library
 
+import android.util.Log
+
 open class SpotDLRequest(url: String? = null, urls: List<String>? = null) {
 
     companion object {
@@ -11,7 +13,7 @@ open class SpotDLRequest(url: String? = null, urls: List<String>? = null) {
     private var urls: List<String>? = null
     private val options: SpotDLOptions = SpotDLOptions()
 
-    private val commandList: List<String> = ArrayList()
+    private val commandList: List<String> = mutableListOf()
 
     init {
         if (url != null) {
@@ -61,10 +63,11 @@ open class SpotDLRequest(url: String? = null, urls: List<String>? = null) {
     }
 
     open fun buildCommand(): List<String?>? {
-        commandList.toMutableList().addAll(options.buildOptions())
-
+        commandList + options.buildOptions()
         val collectionOfUrls: Collection<String> = urls?.filterNotNull() ?: emptyList()
         commandList.toMutableList().addAll(collectionOfUrls)
+
+        Log.d("SpotDLRequest", "buildCommand: $commandList")
         return commandList
     }
 }
