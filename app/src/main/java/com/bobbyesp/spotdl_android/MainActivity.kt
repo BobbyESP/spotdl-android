@@ -21,6 +21,7 @@ import com.bobbyesp.library.SpotDLRequest
 import com.bobbyesp.spotdl_android.ui.theme.SpotdlandroidTheme
 import com.yausername.ffmpeg.FFmpeg
 import java.io.File
+import java.util.*
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -41,13 +42,14 @@ class MainActivity : ComponentActivity() {
                 spotDLDir.mkdir()
             }
             Log.d("MainActivity", "spotDLDir: $spotDLDir")
-            val request : SpotDLRequest = SpotDLRequest("https://open.spotify.com/track/17vXZTcVsCJF1NBoaBQjm7?si=ff8b2f8d6e354416")
+            val request = SpotDLRequest("https://open.spotify.com/track/17vXZTcVsCJF1NBoaBQjm7?si=ff8b2f8d6e354416")
             request.addOption("--output", spotDLDir.absolutePath)
             request.addOption("--format", "mp3")
-            request.buildCommand()
             Log.d("MainActivity", "request: $request")
             var progressCallback: ((Float, Long, String) -> Unit)?
-            SpotDLInstance.execute(request, "17vXZTcVsCJF1NBoaBQjm7", callback = object : DownloadProgressCallback {
+            //get a random id
+            val id = UUID.randomUUID().toString()
+            SpotDLInstance.execute(request, id, callback = object : DownloadProgressCallback {
                 override fun onProgressUpdate(progress: Float, eta: Long, line: String) {
                     Log.d("MainActivity", "progress: $progress")
                     Log.d("MainActivity", "eta: $eta")

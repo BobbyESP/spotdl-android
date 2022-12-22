@@ -1,57 +1,54 @@
 package com.bobbyesp.library
 
-import android.util.Log
+import androidx.annotation.NonNull
 
 open class SpotDLOptions {
 
-    private var options: Map<String, List<String>> = LinkedHashMap()
+    private val options: MutableMap<String, MutableList<String>> = LinkedHashMap()
 
-    open fun addOption(
-        option: String,
-        argument: String
-    ): SpotDLOptions {
+    open fun addOption(option: String, argument: String): SpotDLOptions {
         if (!options.containsKey(option)) {
-            val arguments: MutableList<String> = mutableListOf()
+            val arguments = ArrayList<String>()
             arguments.add(argument)
-            options.toMutableMap()[option] = arguments
+            options[option] = arguments
         } else {
-           options[option]!!.toMutableList().apply { add(argument) }
+            options[option]?.add(argument)
         }
         return this
     }
 
-    open fun addOption(
-        option: String,
-        argument: Number
-    ): SpotDLOptions {
+
+    open fun addOption( option: String, argument: Number): SpotDLOptions {
         if (!options.containsKey(option)) {
-            val arguments: MutableList<String> = ArrayList()
+            val arguments = ArrayList<String>()
             arguments.add(argument.toString())
-            options.toMutableMap()[option] = arguments
+            options[option] = arguments
         } else {
-            options[option]!!.toMutableList().apply { add(argument.toString()) }
+            options[option]?.add(argument.toString())
         }
         return this
     }
 
     open fun addOption(option: String): SpotDLOptions {
         if (!options.containsKey(option)) {
-            val arguments: MutableList<String> = java.util.ArrayList()
+            val arguments = ArrayList<String>()
             arguments.add("")
-            options.toMutableMap()[option] = arguments  //options.put(option, arguments)
+            options[option] = arguments
         } else {
-            options[option]!!.toMutableList().apply { add("") }
+            options[option]?.add("")
         }
         return this
     }
 
-    open fun getArgument(option: String?): String? {
+
+    open fun getArgument(option: String): String? {
         if (!options.containsKey(option)) return null
-        val argument = options[option]!![0]
+        val argument = options[option]?.get(0) ?: return null
         return if (argument.isEmpty()) null else argument
     }
 
-    open fun getArguments(option: String): List<String?>? {
+
+    open fun getArguments(option: String): List<String>? {
         return if (!options.containsKey(option)) null else options[option]
     }
 
@@ -60,10 +57,11 @@ open class SpotDLOptions {
     }
 
     open fun buildOptions(): List<String> {
-        val commandList = mutableListOf<String>()
-        for ((option, arguments) in options.entries) {
-            commandList.add(option)
-            for (argument in arguments) {
+        val commandList = ArrayList<String>()
+        for (entry in options.entries) {
+            val option = entry.key
+            for (argument in entry.value) {
+                commandList.add(option)
                 if (argument.isNotEmpty()) {
                     commandList.add(argument)
                 }
@@ -71,10 +69,4 @@ open class SpotDLOptions {
         }
         return commandList
     }
-
-    /*open fun buildOptions() : List<String>{
-        var commandList: List<String> = mutableListOf()
-        for (entry: Map.Entry<String, List<String>>)
-    }*/
-
 }
