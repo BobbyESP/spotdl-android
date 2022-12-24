@@ -14,12 +14,10 @@ import java.util.*
 
 open class SpotDL {
 
-
-
-    val baseName = "spotdl-android"
+    val baseName = "spotdl_android"
 
     val spotdlDirName = "spotdl"
-    val spotdlBin = "spotdl"
+    val spotdlBin = "spotdl_bin"
 
     private val packagesRoot = "packages"
 
@@ -152,7 +150,7 @@ open class SpotDL {
 
         if (!spotDlBinary.exists()) {
             try {
-                val inputStream = appContext.resources.openRawResource(R.raw.spotdl)
+                val inputStream = appContext.resources.openRawResource(R.raw.spotdl_bin)
                 FileUtils.copyInputStreamToFile(inputStream, spotDlBinary)
             } catch (e: Exception) {
                 FileUtils.deleteQuietly(spotDLdir)
