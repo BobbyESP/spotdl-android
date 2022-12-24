@@ -14,6 +14,8 @@ import java.util.*
 
 open class SpotDL {
 
+
+
     val baseName = "spotdl-android"
 
     val spotdlDirName = "spotdl"
@@ -47,8 +49,10 @@ open class SpotDL {
 
     //create a function that can be called out of this class to get the instance
     companion object {
+        private val spotDl: SpotDL = SpotDL()
+
         fun getInstance(): SpotDL {
-            return SpotDL()
+            return spotDl
         }
     }
 
@@ -59,11 +63,11 @@ open class SpotDL {
             return
         }
 
-        val baseDir: File = File(appContext.noBackupFilesDir, baseName)
+        val baseDir = File(appContext.noBackupFilesDir, baseName)
         Log.d("SpotDL", "Base dir: $baseDir")
         if (!baseDir.exists()) baseDir.mkdir()
 
-        val packagesDir: File = File(baseDir, packagesRoot)
+        val packagesDir = File(baseDir, packagesRoot)
 
         //Setup the files directories to be used
         binDir = File(appContext.getApplicationInfo().nativeLibraryDir)
@@ -137,14 +141,14 @@ open class SpotDL {
     }
 
     private fun shouldUpdatePython(appContext: Context, version: String): Boolean {
-        return !version.equals(SharedPrefsHelper.get(appContext, pythonLibVersion))
+        return version != SharedPrefsHelper[appContext, pythonLibVersion]
     }
 
     @Throws(SpotDLException::class)
     fun initSpotDL(appContext: Context, spotDLdir: File) {
         if (!spotDLdir.exists()) spotDLdir.mkdirs()
 
-        val spotDlBinary: File = File(spotDLdir, spotdlBin)
+        val spotDlBinary = File(spotDLdir, spotdlBin)
 
         if (!spotDlBinary.exists()) {
             try {
@@ -165,7 +169,7 @@ open class SpotDL {
     ): SpotDLResponse {
         assertInit()
         if (id2Process.containsKey(processId)) throw SpotDLException("Process ID already exists")
-        // disable caching unless explicitly requested
+        // disable caching unless it is explicitly requested
         if (!request.hasOption("--cache-path") || request.getOption("--cache-path") == null) {
             request.addOption("--no-cache")
         }
@@ -180,16 +184,13 @@ open class SpotDL {
 
         var startTime = System.currentTimeMillis()
 
-        var args = request.buildCommand()
+        val args = request.buildCommand()
+        val command = mutableListOf<String>()
+        command.addAll(listOf(pythonPath!!.absolutePath, spotdlPath!!.absolutePath))
+        command.addAll(args)
 
-        var command: List<String> = listOf(
-            pythonPath!!.absolutePath,
-            spotdlPath!!.absolutePath
-        )
-
-        val argsCollection: Collection<String> = args?.filterNotNull() ?: emptyList()
-
-        command.toMutableList().addAll(argsCollection)
+        //Stderr:   File "/data/user/0/com.bobbyesp.spotdl_android/no_backup/spotdl-android/spotdl/spotdl", line 1
+        //    SyntaxError: Non-UTF-8 code starting with '\xf9' in file /data/user/0/com.bobbyesp.spotdl_android/no_backup/spotdl-android/spotdl/spotdl on line 2, but no encoding declared; see http://python.org/dev/peps/pep-0263/ for details
 
         val processBuilder = ProcessBuilder(command)
         val env = processBuilder.environment()
@@ -215,12 +216,12 @@ open class SpotDL {
         val errStream: InputStream = process.errorStream
         Log.d("SpotDL", "Err stream: $errStream")
 
-        val stdOutProcessor: StreamProcessExtractor = StreamProcessExtractor(
+        val stdOutProcessor = StreamProcessExtractor(
             outBuffer, outStream,
-            null
+            callback
         )
 
-        val stdErrProcessor: StreamProcessExtractor = StreamProcessExtractor(errBuffer, errStream)
+        val stdErrProcessor = StreamProcessExtractor(errBuffer, errStream)
 
         try {
             stdOutProcessor.join()
@@ -239,7 +240,6 @@ open class SpotDL {
         if (processId != null) id2Process.remove(processId)
 
         val out = outBuffer.toString()
-        Log.d("SpotDL", "Stdout: $out")
         val err = errBuffer.toString()
 
         if(exitCode > 0 && !command.contains("--print-errors")) {
@@ -250,10 +250,21 @@ open class SpotDL {
 
         spotDLResponse = SpotDLResponse(command, exitCode, elapsedTime, out, err)
 
+        Log.d("SpotDL", "Stdout: $out")
+        Log.e("SpotDL", "Stderr: $err")
+        Log.d("SpotDL", "------------------------------------------------------------------------------")
         Log.d("SpotDL", "Process: $processId finished with exit code: $exitCode")
         Log.d("SpotDL", "Process: $spotDLResponse")
 
         return spotDLResponse
+    }
+
+    //test -h command in python
+    fun testPython() {
+        val request = SpotDLRequest()
+        request.addOption("-h")
+        val response = execute(request, "null", null)
+        Log.d("SpotDL", "Response: $response")
     }
 
 

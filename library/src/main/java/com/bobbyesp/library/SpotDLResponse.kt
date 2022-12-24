@@ -1,7 +1,6 @@
 package com.bobbyesp.library
 
-class SpotDLResponse(commands: List<String>, exitCode: Int, elapsedTime: Long, output: String, error: String) {
-
+open class SpotDLResponse(commands: List<String>, exitCode: Int, elapsedTime: Long, output: String, error: String) {
     private var command: List<String>? = null
     private var exitCode = 0
     private var out: String? = null
