@@ -7,12 +7,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.compose.ui.text.input.*
-import com.bobbyesp.spotdl_android.Greeting
-import dagger.hilt.android.lifecycle.HiltViewModel
 
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)

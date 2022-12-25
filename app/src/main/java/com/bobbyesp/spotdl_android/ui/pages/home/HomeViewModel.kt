@@ -37,7 +37,8 @@ class HomeViewModel @Inject constructor() : ViewModel() {
                     if (!spotDLDir.exists()) {
                         spotDLDir.mkdir()
                     }
-                    val request = SpotDLRequest("download $link")
+                    //val request = SpotDLRequest("download $link")
+                    val request = SpotDLRequest(link)
                     request.addOption("--format", "mp3")
                     var progressCallback: ((Float, Long, String) -> Unit)?
                     val processId = UUID.randomUUID().toString()
@@ -63,6 +64,8 @@ class HomeViewModel @Inject constructor() : ViewModel() {
             }
         }
     }
+
+
 }
 
 

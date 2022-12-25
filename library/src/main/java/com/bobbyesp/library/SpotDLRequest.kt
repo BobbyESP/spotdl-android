@@ -60,6 +60,7 @@ open class SpotDLRequest(url: String? = null, urls: List<String>? = null) {
     fun buildCommand(): List<String> {
         commandList.addAll(options.buildOptions())
         commandList.addAll(urls)
+        Log.d("SpotDLRequest", urls.toString())
         Log.d("SpotDLRequest", "Commands: $commandList")
         return commandList
     }

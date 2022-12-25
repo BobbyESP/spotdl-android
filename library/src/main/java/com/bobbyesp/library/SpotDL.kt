@@ -8,11 +8,19 @@ import com.bobbyesp.commonutilities.utils.ZipUtilities
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.apache.commons.io.FileUtils
 import java.io.File
+import java.io.FileOutputStream
 import java.io.IOException
 import java.io.InputStream
 import java.util.*
 
 open class SpotDL {
+
+    /*
+    * INFO: Python tries to run a binary file that is standalone and does not require any type of python installation or dependencies.
+    * The thing is that the binary file is not compatible with all the android devices (or it's kinda hard). So, we need to run the python file instead.
+    * We should take the source code and run it directly here. The problem, the dependencies. We need to install them first. So, we need to run the libraries installation python file first.
+    * Then, we can run the main python file and run the library.
+    * */
 
     val baseName = "spotdl_android"
 
@@ -150,13 +158,29 @@ open class SpotDL {
 
         if (!spotDlBinary.exists()) {
             try {
-                val inputStream = appContext.resources.openRawResource(R.raw.spotdl_bin)
-                FileUtils.copyInputStreamToFile(inputStream, spotDlBinary)
+                //See https://github.com/containerd/containerd/blob/269548fa27e0089a8b8278fc4fc781d7f65a939b/platforms/platforms.go#L88
+                //Also https://www.digitalocean.com/community/tutorials/building-go-applications-for-different-operating-systems-and-architectures
+                val binaryFileId = R.raw.spotdl_bin
+                val outpuFile = File(spotDlBinary.absolutePath)
+                copyRawResourceToFile(appContext, binaryFileId, outpuFile)
             } catch (e: Exception) {
                 FileUtils.deleteQuietly(spotDLdir)
                 throw SpotDLException("Error extracting spotdl files", e)
             }
         }
+    }
+
+    private fun copyRawResourceToFile(context: Context, resourceId: Int, file: File) {
+        val inputStream = context.resources.openRawResource(resourceId)
+        val outputStream = FileOutputStream(file)
+        val buffer = ByteArray(1024)
+        var read = inputStream.read(buffer)
+        while (read != -1) {
+            outputStream.write(buffer, 0, read)
+            read = inputStream.read(buffer)
+        }
+        outputStream.close()
+        inputStream.close()
     }
 
     @Throws(SpotDLException::class, InterruptedException::class)
@@ -183,6 +207,7 @@ open class SpotDL {
         var startTime = System.currentTimeMillis()
 
         val args = request.buildCommand()
+        //Full command
         val command = mutableListOf<String>()
         command.addAll(listOf(pythonPath!!.absolutePath, spotdlPath!!.absolutePath))
         command.addAll(args)
@@ -257,15 +282,15 @@ open class SpotDL {
         return spotDLResponse
     }
 
-    //test -h command in python
-    fun testPython() {
+    //test python
+    fun testPython(): SpotDLResponse {
+        assertInit()
         val request = SpotDLRequest()
-        request.addOption("-h")
-        val response = execute(request, "null", null)
-        Log.d("SpotDL", "Response: $response")
+        request.addOption("--version")
+        val response = execute(request, "test", null)
+
+        return response
     }
-
-
     open fun destroyProcessById(id: String): Boolean {
         if (id2Process.containsKey(id)) {
             val p = id2Process[id]
