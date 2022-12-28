@@ -5,6 +5,10 @@
 <h4>A SpotDL python library Android wrapper built with Kotlin</h4>
 </div>
 
+## ANNOUNCEMENT
+SpotDL official library are going to create a binary file to finish this library. Once we have that binary, this library will get released!!!
+Thank you xnetcat for wanting to contribute and for accepting my request!
+
 
 ## ⚠️ WARN: PROJECT ALMOST FINISHED BUT NOT PUBLISHED IN JITPACK
 By the moment the main library functionalities are done but they weren't tested. In a few days i think that it all will be finished and with the demo app made.
