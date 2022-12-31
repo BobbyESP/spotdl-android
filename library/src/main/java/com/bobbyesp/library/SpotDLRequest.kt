@@ -12,7 +12,7 @@ open class SpotDLRequest(url: String? = null, urls: List<String>? = null) {
 
     private lateinit var urls: List<String>
     private var options = SpotDLOptions()
-    private var commandList = ArrayList<String>()
+    private var customCommandList = ArrayList<String>()
 
     constructor(url: String) : this() {
         this.urls = listOf(url)
@@ -40,7 +40,7 @@ open class SpotDLRequest(url: String? = null, urls: List<String>? = null) {
     }
 
     fun addCommands(commands: List<String>): SpotDLRequest {
-        commandList.addAll(commands)
+        customCommandList.addAll(commands)
         return this
     }
 
@@ -58,11 +58,12 @@ open class SpotDLRequest(url: String? = null, urls: List<String>? = null) {
     }
 
     fun buildCommand(): List<String> {
-        commandList.addAll(options.buildOptions())
-        commandList.addAll(urls)
+        var finalCommandList = ArrayList<String>()
+        finalCommandList.addAll(options.buildOptions())
+        finalCommandList.addAll(urls)
         Log.d("SpotDLRequest", urls.toString())
-        Log.d("SpotDLRequest", "Commands: $commandList")
-        return commandList
+        Log.d("SpotDLRequest", "Commands: $finalCommandList")
+        return finalCommandList
     }
 
 }
