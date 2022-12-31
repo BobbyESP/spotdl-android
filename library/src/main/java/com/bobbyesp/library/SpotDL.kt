@@ -212,21 +212,22 @@ open class SpotDL {
         assertInit()
         if (id2Process.containsKey(processId)) throw SpotDLException("Process ID already exists")
         // disable caching unless it is explicitly requested
-        /*if (!request.hasOption("--cache-path") || request.getOption("--cache-path") == null) {
+        if (!request.hasOption("--cache-path") || request.getOption("--cache-path") == null) {
             request.addOption("--no-cache")
-        }*/
+        }
 
         var spotDLResponse: SpotDLResponse
         val process: Process
 
         var exitCode: Int = 0
-        val outBuffer = StringBuffer() //stdout
 
+        val outBuffer = StringBuffer() //stdout
         var errBuffer = StringBuffer() //stderr
 
         var startTime = System.currentTimeMillis()
 
         val args = request.buildCommand()
+
         //Full command
         val command = mutableListOf<String>()
         command.addAll(listOf(pythonPath!!.absolutePath, spotdlPath!!.absolutePath))
@@ -236,9 +237,13 @@ open class SpotDL {
         val env = processBuilder.environment()
         env["LD_LIBRARY_PATH"] = ENV_LD_LIBRARY_PATH!!
         env["SSL_CERT_FILE"] = ENV_SSL_CERT_FILE!!
-        env["PATH"] = System.getenv("PATH")!! + ":" + binDir!!.absolutePath
+        env["PATH"] = System.getenv("PATH")!! + ":" + binDir!!.absolutePath + ":" + ffmpegPath!!.absolutePath
         env["PYTHONHOME"] = ENV_PYTHONHOME!!
         env["HOME"] = HOME!!
+
+        //Testing ffmpeg
+        //env["ffmpeg"] = ffmpegPath!!.absolutePath
+        //env["global_ffmpeg"] = ffmpegPath!!.absolutePath
 
         try {
             process = processBuilder.start()
@@ -246,7 +251,6 @@ open class SpotDL {
         } catch (e: IOException) {
             throw SpotDLException("Error starting process", e)
         }
-        Log.d("SpotDL", "Process started")
 
         if (processId != null) {
             id2Process[processId] = process
@@ -281,7 +285,13 @@ open class SpotDL {
         if (processId != null) id2Process.remove(processId)
 
         val out = outBuffer.toString()
+
+        //Delete ANSI (cleaner output)
+        val outClean = out.replace("(?:\\x1B[@-Z\\\\-_]|[\\x80-\\x9A\\x9C-\\x9F]|(?:\\x1B\\[|\\x9B)[0-?]*[ -/]*[@-~])".toRegex(), "")
+
         val err = errBuffer.toString()
+        //Cleaner output
+        val errClean = err.replace("(?:\\x1B[@-Z\\\\-_]|[\\x80-\\x9A\\x9C-\\x9F]|(?:\\x1B\\[|\\x9B)[0-?]*[ -/]*[@-~])".toRegex(), "")
 
         if(exitCode > 0 && !command.contains("--print-errors")) {
             throw SpotDLException("Error executing command: $command, exit code: $exitCode, stderr: $err")
@@ -291,8 +301,8 @@ open class SpotDL {
 
         spotDLResponse = SpotDLResponse(command, exitCode, elapsedTime, out, err)
 
-        Log.d("SpotDL", "Stdout: $out")
-        Log.e("SpotDL", "Stderr: $err")
+        Log.d("SpotDL", "Stdout: $outClean")
+        Log.e("SpotDL", "Stderr: $errClean")
         Log.d("SpotDL", "------------------------------------------------------------------------------")
         Log.d("SpotDL", "Process: $processId finished with exit code: $exitCode")
         Log.d("SpotDL", "Process: $spotDLResponse")
@@ -300,15 +310,6 @@ open class SpotDL {
         return spotDLResponse
     }
 
-    //test python
-    fun testPython(): SpotDLResponse {
-        assertInit()
-        val request = SpotDLRequest()
-        request.addOption("--version")
-        val response = execute(request, "test", null)
-
-        return response
-    }
     open fun destroyProcessById(id: String): Boolean {
         if (id2Process.containsKey(id)) {
             val p = id2Process[id]

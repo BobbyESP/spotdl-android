@@ -19,10 +19,8 @@ import javax.inject.Inject
 @HiltViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 class HomeViewModel @Inject constructor() : ViewModel() {
-
     private var currentJob: Job? = null
-
-    //tag
+    //TAG
     private val TAG = "SpotDL"
 
     fun downloadSong(link: String) {
@@ -38,10 +36,11 @@ class HomeViewModel @Inject constructor() : ViewModel() {
                         spotDLDir.mkdir()
                     }
                     val request = SpotDLRequest(link)
+                    request.addOption("--output", "/storage/emulated/0/Download/spotdl/")
                     request.addOption("--format", "mp3")
-                    var progressCallback: ((Float, Long, String) -> Unit)?
                     val processId = UUID.randomUUID().toString()
 
+                    //Print every command
                     for (s in request.buildCommand()) Log.d(TAG, s)
 
                     SpotDL.getInstance()
