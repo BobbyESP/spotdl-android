@@ -47,6 +47,7 @@ open class SpotDL {
     private var ENV_LD_LIBRARY_PATH: String? = null
     private var ENV_SSL_CERT_FILE: String? = null
     private var ENV_PYTHONHOME: String? = null
+    private var HOME: String? = null
 
 
     private val id2Process = Collections.synchronizedMap(HashMap<String, Process>())
@@ -67,6 +68,11 @@ open class SpotDL {
     open fun init(appContext: Context) {
         if (initialized) {
             return
+        }
+
+        val termuxSpotDLPath_Text = File("/data/data/com.termux/files/home/.spotdl")
+        if(!termuxSpotDLPath_Text.exists()) {
+            termuxSpotDLPath_Text.mkdirs()
         }
 
         val baseDir = File(appContext.noBackupFilesDir, baseName)
@@ -94,10 +100,13 @@ open class SpotDL {
         val spotDLdir = File(baseDir, spotdlDirName)
         spotdlPath = File(spotDLdir, spotdlBin)
 
+        val appPath = File(appContext.filesDir, "spotdl")
+
         ENV_LD_LIBRARY_PATH =
             pythonDir.absolutePath + "/usr/lib" + ":" + ffmpegDir.absolutePath + "/usr/lib"
         ENV_SSL_CERT_FILE = pythonDir.absolutePath + "/usr/etc/tls/cert.pem"
         ENV_PYTHONHOME = pythonDir.absolutePath + "/usr"
+        HOME = appPath.absolutePath
 
         //Initialize the python and spotdl files
         try {
@@ -192,9 +201,9 @@ open class SpotDL {
         assertInit()
         if (id2Process.containsKey(processId)) throw SpotDLException("Process ID already exists")
         // disable caching unless it is explicitly requested
-        if (!request.hasOption("--cache-path") || request.getOption("--cache-path") == null) {
+        /*if (!request.hasOption("--cache-path") || request.getOption("--cache-path") == null) {
             request.addOption("--no-cache")
-        }
+        }*/
 
         var spotDLResponse: SpotDLResponse
         val process: Process
@@ -212,15 +221,13 @@ open class SpotDL {
         command.addAll(listOf(pythonPath!!.absolutePath, spotdlPath!!.absolutePath))
         command.addAll(args)
 
-        //Stderr:   File "/data/user/0/com.bobbyesp.spotdl_android/no_backup/spotdl-android/spotdl/spotdl", line 1
-        //    SyntaxError: Non-UTF-8 code starting with '\xf9' in file /data/user/0/com.bobbyesp.spotdl_android/no_backup/spotdl-android/spotdl/spotdl on line 2, but no encoding declared; see http://python.org/dev/peps/pep-0263/ for details
-
         val processBuilder = ProcessBuilder(command)
         val env = processBuilder.environment()
         env["LD_LIBRARY_PATH"] = ENV_LD_LIBRARY_PATH!!
         env["SSL_CERT_FILE"] = ENV_SSL_CERT_FILE!!
         env["PATH"] = System.getenv("PATH")!! + ":" + binDir!!.absolutePath
         env["PYTHONHOME"] = ENV_PYTHONHOME!!
+        env["HOME"] = HOME!!
 
         try {
             process = processBuilder.start()
