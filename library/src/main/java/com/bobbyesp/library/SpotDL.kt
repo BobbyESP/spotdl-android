@@ -22,6 +22,9 @@ open class SpotDL {
     * Then, we can run the main python file and run the library.
     * */
 
+    //lib.so.6: https://www.golinuxcloud.com/how-do-i-install-the-linux-library-libc-so-6/
+    //Because: ImportError: dlopen failed: library "libc.so.6" not found: needed by /data/data/com.bobbyesp.spotdl_android/no_backup/spotdl_android/packages/python/usr/lib/python3.8/site-packages/pydantic/__init__.cpython-38.so in namespace (default)
+
     val baseName = "spotdl_android"
 
     val spotdlDirName = "spotdl"
@@ -48,6 +51,7 @@ open class SpotDL {
     private var ENV_SSL_CERT_FILE: String? = null
     private var ENV_PYTHONHOME: String? = null
     private var HOME: String? = null
+    private var LDFLAGS: String? = null
 
 
     private val id2Process = Collections.synchronizedMap(HashMap<String, Process>())
@@ -107,9 +111,16 @@ open class SpotDL {
         ENV_SSL_CERT_FILE = pythonDir.absolutePath + "/usr/etc/tls/cert.pem"
         ENV_PYTHONHOME = pythonDir.absolutePath + "/usr"
         HOME = appPath.absolutePath
+        LDFLAGS = "-rdynamic"
 
         //Initialize the python and spotdl files
         try {
+            if(HOME != null) {
+                val homeDir = File(HOME)
+                if (!homeDir.exists()) {
+                    homeDir.mkdirs()
+                }
+            }
             initPython(appContext, pythonDir)
             initSpotDL(appContext, spotDLdir)
         } catch (e: Exception) {
