@@ -55,7 +55,12 @@ class StreamProcessExtractor(buffer: StringBuffer, stream: InputStream, callback
     }
 
     private fun processOutputLine(line: String) {
-        callback!!.onProgressUpdate(getProgress(line), getEta(line), line)
+        try {
+            callback!!.onProgressUpdate(getProgress(line), getEta(line), line)
+        } catch (e: Exception) {
+            Log.d(TAG, line)
+        }
+
     }
 
     private fun getProgress(line: String): Float {

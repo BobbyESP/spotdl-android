@@ -45,17 +45,7 @@ class HomeViewModel @Inject constructor() : ViewModel() {
                     for (s in request.buildCommand()) Log.d(TAG, s)
 
                     SpotDL.getInstance()
-                        .execute(request, processId, callback = object : DownloadProgressCallback {
-                            override fun onProgressUpdate(
-                                progress: Float,
-                                eta: Long,
-                                line: String
-                            ) {
-                                Log.d("MainActivity", "progress: $progress")
-                                Log.d("MainActivity", "eta: $eta")
-                                Log.d("MainActivity", "line: $line")
-                            }
-                        })
+                        .execute(request, processId, callback = Callback())
                 } catch (e: Exception) {
                     e.printStackTrace()
                     Log.d("MainActivity", "Error downloading song. ${e.message}")
@@ -65,6 +55,12 @@ class HomeViewModel @Inject constructor() : ViewModel() {
     }
 
 
+}
+
+class Callback: DownloadProgressCallback {
+    override fun onProgressUpdate(progress: Float, eta: Long, line: String) {
+        Log.d("MainActivity", "Progress: $progress, ETA: $eta, Line: $line")
+    }
 }
 
 
