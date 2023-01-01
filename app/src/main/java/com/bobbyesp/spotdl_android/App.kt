@@ -5,11 +5,11 @@ import android.app.Application
 import android.content.Context
 import android.os.Environment
 import android.util.Log
+import com.bobbyesp.ffmpeg.FFmpeg
 import com.bobbyesp.library.SpotDL
 import com.bobbyesp.spotdl_android.utils.PreferencesUtil
 import com.bobbyesp.spotdl_android.utils.PreferencesUtil.AUDIO_DIRECTORY
 import com.tencent.mmkv.MMKV
-import com.yausername.ffmpeg.FFmpeg
 import dagger.hilt.android.HiltAndroidApp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
