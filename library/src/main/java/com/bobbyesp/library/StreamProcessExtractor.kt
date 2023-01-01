@@ -25,6 +25,9 @@ class StreamProcessExtractor(buffer: StringBuffer, stream: InputStream, callback
     private val regexPattern: Pattern =
         Pattern.compile("([+-]?(?=\\.\\d|\\d)(?:\\d+)?(?:\\.?\\d*))(?:[eE]([+-]?\\d+))?")
 
+    private val cleanOutRegex: Pattern =
+        Pattern.compile("(?:\\x1B[@-Z\\\\-_]|[\\x80-\\x9A\\x9C-\\x9F]|(?:\\x1B\\[|\\x9B)[0-?]*[ -/]*[@-~])")
+
     private var progress: Float = PERCENT
     private var eta: Long = ETA
 
@@ -50,7 +53,7 @@ class StreamProcessExtractor(buffer: StringBuffer, stream: InputStream, callback
                 currentLine.append(nextChar.toChar())
             }
         } catch (e: IOException) {
-            if (BuildConfig.DEBUG) Log.e(TAG, "failed to read stream", e)
+            Log.e(TAG, "failed to read stream", e)
         }
     }
 
@@ -58,7 +61,7 @@ class StreamProcessExtractor(buffer: StringBuffer, stream: InputStream, callback
         try {
             callback!!.onProgressUpdate(getProgress(line), getEta(line), line)
         } catch (e: Exception) {
-            Log.d(TAG, line)
+            Log.d(TAG, cleanOutRegex.matcher(line).replaceAll(""))
         }
 
     }

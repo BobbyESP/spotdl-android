@@ -62,8 +62,15 @@ class HomeViewModel @Inject constructor() : ViewModel() {
                         "--------------------------------------------------------------------"
                     )
 
+                    //Directory of downloads
+                    val downloadDir = File(
+                        Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
+                        "spotdl"
+                    )
+
                     val request = SpotDLRequest()
                     request.addOption("download", link)
+                    request.addOption("--output", downloadDir.absolutePath)
                     val processId = UUID.randomUUID().toString()
 
                     //Print every command

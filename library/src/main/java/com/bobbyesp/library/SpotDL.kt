@@ -53,6 +53,8 @@ open class SpotDL {
     private var HOME: String? = null
     private var LDFLAGS: String? = null
 
+    private val isDebug = BuildConfig.DEBUG
+
 
     private val id2Process = Collections.synchronizedMap(HashMap<String, Process>())
 
@@ -88,15 +90,15 @@ open class SpotDL {
         //Setup the files directories to be used
         binDir = File(appContext.applicationInfo.nativeLibraryDir)
 
-        Log.d("SpotDL", "Bin dir: $binDir")
+        if(isDebug) Log.d("SpotDL", "Bin dir: $binDir")
 
         pythonPath = File(binDir, pythonBinName)
 
-        Log.d("SpotDL", "Python path: $pythonPath")
+        if(isDebug) Log.d("SpotDL", "Python path: $pythonPath")
 
         ffmpegPath = File(binDir, ffmpegBinName)
 
-        Log.d("SpotDL", "FFMPEG path: $ffmpegPath")
+        if(isDebug) Log.d("SpotDL", "FFMPEG path: $ffmpegPath")
 
         val pythonDir = File(packagesDir, pythonDirName)
         val ffmpegDir = File(packagesDir, ffmpegDirName)
@@ -112,6 +114,9 @@ open class SpotDL {
         ENV_PYTHONHOME = pythonDir.absolutePath + "/usr"
         HOME = appPath.absolutePath
         LDFLAGS = "-rdynamic"
+
+        Log.i("SpotDL", "HOME: $HOME")
+        Log.i("SpotDL", "ffmpegDir: ${ffmpegDir.absolutePath}")
 
         //Initialize the python and spotdl files
         try {
@@ -132,6 +137,7 @@ open class SpotDL {
         initialized = true
     }
 
+    //Just for testing
     private fun givefullAccess(path: String){
         val command = "chmod 777 $path"
         val runtime = Runtime.getRuntime()
@@ -233,6 +239,8 @@ open class SpotDL {
         if (!request.hasOption("--cache-path") || request.getOption("--cache-path") == null) {
             request.addOption("--no-cache")
         }
+        //MANDATORY!
+        request.addOption("--ffmpeg", ffmpegPath!!.absolutePath)
 
         var spotDLResponse: SpotDLResponse
         val process: Process
@@ -259,10 +267,6 @@ open class SpotDL {
         env["PYTHONHOME"] = ENV_PYTHONHOME!!
         env["HOME"] = HOME!!
 
-        //Testing ffmpeg
-        //env["ffmpeg"] = ffmpegPath!!.absolutePath
-        //env["global_ffmpeg"] = ffmpegPath!!.absolutePath
-
         try {
             process = processBuilder.start()
             Log.d("SpotDL", "Process started. Process: $process")
@@ -275,9 +279,10 @@ open class SpotDL {
         }
 
         val outStream: InputStream = process.inputStream
-        Log.d("SpotDL", "Out stream: $outStream")
+
+        if(isDebug) Log.d("SpotDL", "Out stream: $outStream")
         val errStream: InputStream = process.errorStream
-        Log.d("SpotDL", "Err stream: $errStream")
+        if(isDebug) Log.d("SpotDL", "Err stream: $errStream")
 
         val stdOutProcessor = StreamProcessExtractor(
             outBuffer, outStream,
@@ -319,11 +324,16 @@ open class SpotDL {
 
         spotDLResponse = SpotDLResponse(command, exitCode, elapsedTime, out, err)
 
-        Log.d("SpotDL", "Stdout: $outClean")
-        Log.e("SpotDL", "Stderr: $errClean")
-        Log.d("SpotDL", "------------------------------------------------------------------------------")
-        Log.d("SpotDL", "Process: $processId finished with exit code: $exitCode")
-        Log.d("SpotDL", "Process: $spotDLResponse")
+        if(BuildConfig.DEBUG) {
+            Log.d("SpotDL", "Stdout: $outClean")
+            Log.e("SpotDL", "Stderr: $errClean")
+            Log.d(
+                "SpotDL",
+                "------------------------------------------------------------------------------"
+            )
+            Log.d("SpotDL", "Process: $processId finished with exit code: $exitCode")
+            Log.d("SpotDL", "Process: $spotDLResponse")
+        }
 
         return spotDLResponse
     }
