@@ -72,7 +72,7 @@ The library won't work without FFmpeg, so for using it, you have to add the seco
 - You have to add to your dependecies declaration the next library:
 ```gradle
 dependencies {
-  implementation "implementation "com.github.BobbyESP.spotdl-android:spotdl-android-ffmpeg:$spotdllib_version"
+  implementation "com.github.BobbyESP.spotdl-android:spotdl-android-ffmpeg:$spotdllib_version"
 }
 ```
 
