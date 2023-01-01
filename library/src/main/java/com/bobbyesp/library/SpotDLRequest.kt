@@ -10,7 +10,7 @@ open class SpotDLRequest(url: String? = null, urls: List<String>? = null) {
         }
     }
 
-    private lateinit var urls: List<String>
+    private var urls: List<String> = listOf()
     private var options = SpotDLOptions()
     private var customCommandList = ArrayList<String>()
 
@@ -63,7 +63,7 @@ open class SpotDLRequest(url: String? = null, urls: List<String>? = null) {
         finalCommandList.addAll(urls)
         Log.d("SpotDLRequest", urls.toString())
         Log.d("SpotDLRequest", "Commands: $finalCommandList")
-        return finalCommandList.reversed()
+        return finalCommandList
     }
 
 }
