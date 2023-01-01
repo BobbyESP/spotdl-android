@@ -1,5 +1,7 @@
 package com.bobbyesp.spotdl_android.ui.pages.home
 
+import android.content.ContentResolver
+import android.net.Uri
 import android.os.Environment
 import android.util.Log
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -9,6 +11,7 @@ import com.bobbyesp.library.DownloadProgressCallback
 import com.bobbyesp.library.SpotDL
 import com.bobbyesp.library.SpotDLRequest
 import com.bobbyesp.spotdl_android.App.Companion.applicationScope
+import com.bobbyesp.spotdl_android.App.Companion.context
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
@@ -35,6 +38,12 @@ class HomeViewModel @Inject constructor() : ViewModel() {
                     if (!spotDLDir.exists()) {
                         spotDLDir.mkdir()
                     }
+                    val fullPath = context.filesDir.absolutePath + "/spotdl/.spotdl"
+                    Log.d(TAG, "--------------------------------------------------------------------")
+                    Log.i(TAG, canAccessDirectory(fullPath).toString())
+                    Log.i(TAG, canReadAndWriteFile("$fullPath/ffmpeg").toString())
+                    Log.d(TAG, "--------------------------------------------------------------------")
+
                     val request = SpotDLRequest(link)
                     request.addOption("--output", "/storage/emulated/0/Download/spotdl/")
                     request.addOption("--format", "mp3")
@@ -52,7 +61,19 @@ class HomeViewModel @Inject constructor() : ViewModel() {
             }
         }
     }
+        //Check if the app can access to a directory
+    fun canAccessDirectory(path: String): Boolean {
+        Log.d("Can Access Directory", "Checking if the app can access to $path")
+        val file = File(path)
+        return file.exists() && file.canRead() && file.canWrite() && file.isDirectory
+    }
 
+    //can read and write file
+    fun canReadAndWriteFile(path: String): Boolean {
+        Log.d("Can Read and Write File", "Checking if the app can read and write to $path")
+        val file = File(path)
+        return file.exists() && file.canRead() && file.canWrite() && file.isFile
+    }
 
 }
 

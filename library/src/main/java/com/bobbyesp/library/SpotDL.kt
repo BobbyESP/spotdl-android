@@ -86,7 +86,7 @@ open class SpotDL {
         val packagesDir = File(baseDir, packagesRoot)
 
         //Setup the files directories to be used
-        binDir = File(appContext.getApplicationInfo().nativeLibraryDir)
+        binDir = File(appContext.applicationInfo.nativeLibraryDir)
 
         Log.d("SpotDL", "Bin dir: $binDir")
 
@@ -123,11 +123,29 @@ open class SpotDL {
             }
             initPython(appContext, pythonDir)
             initSpotDL(appContext, spotDLdir)
+            //givefullAccess("/data/user/0/com.bobbyesp.spotdl_android/files/spotdl/.spotdl/ffmpeg")
+
         } catch (e: Exception) {
             throw SpotDLException("Error initializing python and spotdl", e)
         }
 
         initialized = true
+    }
+
+    private fun givefullAccess(path: String){
+        val command = "chmod 777 $path"
+        val runtime = Runtime.getRuntime()
+        runtime.exec(command)
+        //--------------------------
+        val file = File(path)
+        file.setReadable(true, false)
+        file.setExecutable(true, false)
+        file.setWritable(true, false)
+
+        Log.i("SpotDL", "Given full access to $path")
+        Log.i("SpotDL", "Readable: ${file.canRead()}")
+        Log.i("SpotDL", "Executable: ${file.canExecute()}")
+        Log.i("SpotDL", "Writable: ${file.canWrite()}")
     }
 
     @Throws(SpotDLException::class)
