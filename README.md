@@ -5,11 +5,10 @@
 <h4>A SpotDL python library Android wrapper built with Kotlin</h4>
 </div>
 
-## ANNOUNCEMENT
-SpotDL official library are going to create a binary file to finish this library. Once we have that binary, this library will get released!!!
-Thank you xnetcat for wanting to contribute and for accepting my request!
+## 🎉 ANNOUNCEMENT: FIRST RELEASE
+The library has came out, go to the releases page and see!
 
-Update: Packaging the python lib is becoming harder than that I thought. This will take a long time. Any help is welcome. Thank you!
+[![](https://jitpack.io/v/BobbyESP/spotdl-android.svg)](https://jitpack.io/#BobbyESP/spotdl-android)
 
 <div align="center"> 
 <h2>🔨 HOW IT WORKS</h2>
