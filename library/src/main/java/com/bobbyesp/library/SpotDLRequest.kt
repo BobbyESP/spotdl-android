@@ -63,7 +63,7 @@ open class SpotDLRequest(url: String? = null, urls: List<String>? = null) {
         finalCommandList.addAll(urls)
         Log.d("SpotDLRequest", urls.toString())
         Log.d("SpotDLRequest", "Commands: $finalCommandList")
-        return finalCommandList
+        return finalCommandList.reversed()
     }
 
 }
