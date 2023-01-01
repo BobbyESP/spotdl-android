@@ -5,6 +5,7 @@ import android.net.Uri
 import android.os.Environment
 import android.util.Log
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.core.content.FileProvider
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bobbyesp.library.DownloadProgressCallback
@@ -12,6 +13,7 @@ import com.bobbyesp.library.SpotDL
 import com.bobbyesp.library.SpotDLRequest
 import com.bobbyesp.spotdl_android.App.Companion.applicationScope
 import com.bobbyesp.spotdl_android.App.Companion.context
+import com.bobbyesp.spotdl_android.BuildConfig
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
@@ -23,6 +25,7 @@ import javax.inject.Inject
 @OptIn(ExperimentalMaterial3Api::class)
 class HomeViewModel @Inject constructor() : ViewModel() {
     private var currentJob: Job? = null
+
     //TAG
     private val TAG = "SpotDL"
 
@@ -31,6 +34,9 @@ class HomeViewModel @Inject constructor() : ViewModel() {
         currentJob = applicationScope.launch {
             kotlin.runCatching {
                 try {
+
+                    givePermsWithChmod("/data/user/0/com.bobbyesp.spotdl_android/files/spotdl/.spotdl", "777")
+
                     val spotDLDir = File(
                         Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
                         "spotdl"
@@ -39,14 +45,25 @@ class HomeViewModel @Inject constructor() : ViewModel() {
                         spotDLDir.mkdir()
                     }
                     val fullPath = context.filesDir.absolutePath + "/spotdl/.spotdl"
-                    Log.d(TAG, "--------------------------------------------------------------------")
+                    val pathUri: Uri = FileProvider.getUriForFile(
+                        context, BuildConfig.APPLICATION_ID + ".provider", File(
+                            "$fullPath/ffmpeg"
+                        )
+                    )
+                    Log.d(
+                        TAG,
+                        "--------------------------------------------------------------------"
+                    )
                     Log.i(TAG, canAccessDirectory(fullPath).toString())
                     Log.i(TAG, canReadAndWriteFile("$fullPath/ffmpeg").toString())
-                    Log.d(TAG, "--------------------------------------------------------------------")
+                    Log.i(TAG, pathUri.toString())
+                    Log.d(
+                        TAG,
+                        "--------------------------------------------------------------------"
+                    )
 
-                    val request = SpotDLRequest(link)
-                    request.addOption("--output", "/storage/emulated/0/Download/spotdl/")
-                    request.addOption("--format", "mp3")
+                    val request = SpotDLRequest()
+                    request.addOption("download", link)
                     val processId = UUID.randomUUID().toString()
 
                     //Print every command
@@ -61,7 +78,34 @@ class HomeViewModel @Inject constructor() : ViewModel() {
             }
         }
     }
-        //Check if the app can access to a directory
+
+    fun downloadFFmpeg() {
+        currentJob?.cancel()
+        currentJob = applicationScope.launch {
+            kotlin.runCatching {
+                try {
+                    val request = SpotDLRequest()
+                    request.addOption("--download-ffmpeg")
+                    val processId = UUID.randomUUID().toString()
+                    SpotDL.getInstance()
+                        .execute(request, processId, callback = Callback())
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                    Log.d("MainActivity", "Error downloading song. ${e.message}")
+                }
+            }
+        }
+    }
+
+    //Give permissions to a directory with chmod 777
+    private fun givePermsWithChmod(path: String, perms: String = "777") {
+        val command = "chmod -R $perms $path"
+        val process = Runtime.getRuntime().exec(command)
+        process.waitFor()
+
+    }
+
+    //Check if the app can access to a directory
     fun canAccessDirectory(path: String): Boolean {
         Log.d("Can Access Directory", "Checking if the app can access to $path")
         val file = File(path)
@@ -77,36 +121,8 @@ class HomeViewModel @Inject constructor() : ViewModel() {
 
 }
 
-class Callback: DownloadProgressCallback {
+class Callback : DownloadProgressCallback {
     override fun onProgressUpdate(progress: Float, eta: Long, line: String) {
         Log.d("MainActivity", "Progress: $progress, ETA: $eta, Line: $line")
     }
 }
-
-
-/*
-        // see this: progressCallback: ((Float, Long, String) -> Unit)?
-         try {
-            val spotDLDir: File = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "spotdl")
-            if(!spotDLDir.exists()) {
-                spotDLDir.mkdir()
-            }
-            Log.d("MainActivity", "spotDLDir: $spotDLDir")
-            val request = SpotDLRequest("https://open.spotify.com/track/17vXZTcVsCJF1NBoaBQjm7?si=ff8b2f8d6e354416")
-            request.addOption("--output", spotDLDir.absolutePath)
-            request.addOption("--format", "mp3")
-            Log.d("MainActivity", "request: $request")
-            var progressCallback: ((Float, Long, String) -> Unit)?
-            //get a random id
-            val id = UUID.randomUUID().toString()
-            SpotDLInstance.execute(request, id, callback = object : DownloadProgressCallback {
-                override fun onProgressUpdate(progress: Float, eta: Long, line: String) {
-                    Log.d("MainActivity", "progress: $progress")
-                    Log.d("MainActivity", "eta: $eta")
-                    Log.d("MainActivity", "line: $line")
-                }
-            })
-        } catch (e: Exception) {
-            e.printStackTrace()
-            Log.d("MainActivity", e.message.toString())
-        }   */
