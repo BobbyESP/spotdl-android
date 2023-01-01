@@ -11,11 +11,6 @@ Thank you xnetcat for wanting to contribute and for accepting my request!
 
 Update: Packaging the python lib is becoming harder than that I thought. This will take a long time. Any help is welcome. Thank you!
 
-
-## ⚠️ WARN: PROJECT ALMOST FINISHED BUT NOT PUBLISHED IN JITPACK
-By the moment the main library functionalities are done but they weren't tested. In a few days i think that it all will be finished and with the demo app made.
-I'm going to make an Android Spotify songs downloader, so stay tuned! 😊
-
 <div align="center"> 
 <h2>🔨 HOW IT WORKS</h2>
 </div>
@@ -32,16 +27,17 @@ allprojects {
 }
 ```
 
-- **Step 2:** Add the library dependence to your build.gradle file at app/module level.
+- **Step 2:** Add the two library dependencies to your build.gradle file at app/module level.
 ```gradle
 dependencies {
-  implementation "com.github.bobbyesp.spotdl-android:library:$spotdllib_version"
+  implementation "com.github.BobbyESP.spotdl-android:spotdl-android-library:$spotdllib_version"  
+  implementation "com.github.BobbyESP.spotdl-android:spotdl-android-ffmpeg:$spotdllib_version"
 }
 ```
 >**Note**
 You can add an `extra` property in Gradle for more organization/readability. In this example, as you can see, the property for putting the version of the library in the dependency declaration is called `spotdllib_version` and it should look like this:
 ```gradle
-  allprojects{
+ allprojects{
     extras{
       spotdllib_version = '0.1.0'
     }
@@ -72,16 +68,14 @@ Python 3.8 is already bundled in the library
  
 ## FFMpeg
 
-For using FFMpeg, you have to add an additional library (or by the moment the only way. In next releases it **may** be included).
+The library won't work without FFmpeg, so for using it, you have to add the second library that was told at the very top of the README
 
 - You have to add to your dependecies declaration the next library:
 ```gradle
 dependencies {
-  implementation "com.github.yausername.youtubedl-android:ffmpeg:-SNAPSHOT"
+  implementation "implementation "com.github.BobbyESP.spotdl-android:spotdl-android-ffmpeg:$spotdllib_version"
 }
 ```
-
-See [youtubedl-android](https://github.com/yausername/youtubedl-android) library. Scroll down till the FFMpeg index in the README.
 
 Now, you have to add this code to the last try-catch example:
 ```kotlin
@@ -92,7 +86,7 @@ Getting a final try-catch like this:
  ```kotlin
  try {
   SpotDL.getInstance().init(this@App) //Replace @App by the class you're using to initiate the lib.
-  FFMpeg.getInstance.init(this@App)
+  FFMpeg.getInstance().init(this@App)
  } catch (e: Excpetion) {
   Log.e("SpotDLExample", "An error ocurreed while trying to initiate the library: $e")
  }
