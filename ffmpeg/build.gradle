@@ -1,6 +1,7 @@
 plugins {
     id 'com.android.library'
     id 'org.jetbrains.kotlin.android'
+    id 'maven-publish'
 }
 
 android {
@@ -35,4 +36,16 @@ dependencies {
     implementation project(path: ':library')
     implementation project(path: ':commonUtilities')
     implementation group: 'commons-io', name: 'commons-io', version: "$commonsIoVer"
+}
+
+afterEvaluate{
+    publishing {
+        publications {
+            maven(MavenPublication) {
+                groupId 'com.github.bobbyesp'
+                artifactId 'spotdl-android-ffmpeg'
+                version project(':ffmpeg').version
+            }
+        }
+    }
 }

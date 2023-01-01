@@ -2,7 +2,6 @@ package com.bobbyesp.spotdl_android.ui.pages.home
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -43,7 +42,7 @@ fun HomePage(
                     singleLine = true,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(start = 16.dp, end = 16.dp),
+                        .padding(16.dp),
                     colors = TextFieldDefaults.outlinedTextFieldColors(
                         focusedBorderColor = MaterialTheme.colorScheme.primary,
                         unfocusedBorderColor = MaterialTheme.colorScheme.primary,
@@ -65,13 +64,8 @@ fun HomePage(
                         errorTrailingIconColor = MaterialTheme.colorScheme.primary,
                     )
                 )
-                Row(modifier = Modifier.fillMaxWidth().align(Alignment.CenterHorizontally), verticalAlignment = Alignment.CenterVertically) {
-                    Button(onClick = { homeViewModel.downloadSong(text) }) {
-                        Text(text = "Download")
-                    }
-                    Button(onClick = { homeViewModel.downloadFFmpeg()}) {
-                        Text(text = "Download FFmpeg")
-                    }
+                Button(onClick = { homeViewModel.downloadSong(text) }) {
+                    Text(text = "Download")
                 }
 
             }

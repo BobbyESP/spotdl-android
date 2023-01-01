@@ -1,13 +1,13 @@
 package com.bobbyesp.spotdl_android.ui.pages.home
 
-import android.content.ContentResolver
 import android.net.Uri
 import android.os.Environment
+import android.os.Looper
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.core.content.FileProvider
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import com.bobbyesp.library.DownloadProgressCallback
 import com.bobbyesp.library.SpotDL
 import com.bobbyesp.library.SpotDLRequest
@@ -32,9 +32,16 @@ class HomeViewModel @Inject constructor() : ViewModel() {
     fun downloadSong(link: String) {
         currentJob?.cancel()
         currentJob = applicationScope.launch {
+            //if a looper is not present, the app will crash so we need to create one and if it is present, we need to use it
+            val looper = if (Looper.myLooper() == null) {
+                Looper.prepare()
+                Looper.myLooper()
+            } else {
+                Looper.myLooper()
+            }
             kotlin.runCatching {
                 try {
-
+                    Toast.makeText(context, "Downloading...", Toast.LENGTH_SHORT).show()
                     givePermsWithChmod("/data/user/0/com.bobbyesp.spotdl_android/files/spotdl/.spotdl", "777")
 
                     val spotDLDir = File(
@@ -78,6 +85,7 @@ class HomeViewModel @Inject constructor() : ViewModel() {
 
                     SpotDL.getInstance()
                         .execute(request, processId, callback = Callback())
+                    Toast.makeText(context, "Downloaded!", Toast.LENGTH_SHORT).show()
                 } catch (e: Exception) {
                     e.printStackTrace()
                     Log.d("MainActivity", "Error downloading song. ${e.message}")

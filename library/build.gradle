@@ -1,6 +1,7 @@
 plugins {
     id 'com.android.library'
     id 'org.jetbrains.kotlin.android'
+    id 'maven-publish'
 }
 
 android {
@@ -37,4 +38,16 @@ dependencies {
     implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: "$jacksonVer"
     implementation group: 'com.fasterxml.jackson.core', name: 'jackson-annotations', version: "$jacksonVer"
     implementation group: 'commons-io', name: 'commons-io', version: "$commonsIoVer"
+}
+
+afterEvaluate{
+    publishing {
+        publications {
+            maven(MavenPublication) {
+                groupId 'com.github.bobbyesp'
+                artifactId 'spotdl-android-library'
+                version project(':library').version
+            }
+        }
+    }
 }
