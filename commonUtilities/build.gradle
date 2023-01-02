@@ -1,6 +1,7 @@
 plugins {
     id 'com.android.library'
     id 'org.jetbrains.kotlin.android'
+    id 'maven-publish'
 }
 
 android {
@@ -31,7 +32,7 @@ android {
 }
 
 dependencies {
-
+    implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation 'androidx.core:core-ktx:1.7.0'
     implementation 'androidx.appcompat:appcompat:1.5.1'
     implementation 'com.google.android.material:material:1.7.0'
@@ -41,4 +42,18 @@ dependencies {
 
     implementation group: 'commons-io', name: 'commons-io', version: "$commonsIoVer"
     implementation group: 'org.apache.commons', name: 'commons-compress', version: "$commonsCompressVer"
+}
+
+afterEvaluate{
+    publishing {
+        publications {
+            maven(MavenPublication) {
+                from components.release
+
+                groupId 'com.github.bobbyesp'
+                artifactId 'spotdl-android-commonUtilities'
+                version '0.1.1'
+            }
+        }
+    }
 }

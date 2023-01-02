@@ -20,6 +20,7 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            consumerProguardFiles 'proguard-rules.pro'
         }
     }
     compileOptions {
@@ -44,9 +45,11 @@ afterEvaluate{
     publishing {
         publications {
             maven(MavenPublication) {
+                from components.release
+
                 groupId 'com.github.bobbyesp'
                 artifactId 'spotdl-android-ffmpeg'
-                version '0.1.0'
+                version '0.1.1'
             }
         }
     }
