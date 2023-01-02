@@ -32,6 +32,8 @@ android {
 }
 
 dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+
     implementation 'androidx.core:core-ktx:1.8.0'
     implementation project(path: ':library')
     implementation project(path: ':commonUtilities')
@@ -44,7 +46,7 @@ afterEvaluate{
             maven(MavenPublication) {
                 groupId 'com.github.bobbyesp'
                 artifactId 'spotdl-android-ffmpeg'
-                version project(':ffmpeg').version
+                version '0.1.0'
             }
         }
     }
