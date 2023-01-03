@@ -18,6 +18,9 @@ open class SpotDLUpdater {
     private val releasesUrl = "https://api.github.com/repos/spotDL/spotify-downloader/releases/latest"
     private val spotDLVersionKey = "spotDLVersion"
 
+    //Actually this is the method that youtubedl-android follow for updating the binary
+    //but we can't use it because the binary is not uploaded to github releases
+
    /* @Throws(IOException::class, SpotDLException::class)
     open fun update(appContext: Context): SpotDL.UpdateStatus {
         val json: JsonNode =
