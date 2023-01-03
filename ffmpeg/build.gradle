@@ -49,7 +49,7 @@ afterEvaluate{
 
                 groupId 'com.github.bobbyesp'
                 artifactId 'spotdl-android-ffmpeg'
-                version '0.1.1'
+                version '0.1.2'
             }
         }
     }
