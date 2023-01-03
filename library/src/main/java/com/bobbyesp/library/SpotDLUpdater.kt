@@ -2,8 +2,6 @@ package com.bobbyesp.library
 
 import android.content.Context
 import com.bobbyesp.commonutilities.SharedPrefsHelper
-import com.fasterxml.jackson.databind.JsonNode
-import com.fasterxml.jackson.databind.node.ArrayNode
 import org.apache.commons.io.FileUtils
 import java.io.File
 import java.io.IOException
@@ -20,7 +18,7 @@ open class SpotDLUpdater {
     private val releasesUrl = "https://api.github.com/repos/spotDL/spotify-downloader/releases/latest"
     private val spotDLVersionKey = "spotDLVersion"
 
-    @Throws(IOException::class, SpotDLException::class)
+   /* @Throws(IOException::class, SpotDLException::class)
     open fun update(appContext: Context): SpotDL.UpdateStatus {
         val json: JsonNode =
             checkForUpdate(appContext)
@@ -109,5 +107,5 @@ open class SpotDLUpdater {
             appContext,
             spotDLVersionKey
         )
-    }
+    }*/
 }

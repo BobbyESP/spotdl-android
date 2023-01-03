@@ -3,9 +3,13 @@ package com.bobbyesp.library
 import android.content.Context
 import android.os.Build
 import android.util.Log
+import androidx.annotation.NonNull
 import com.bobbyesp.commonutilities.SharedPrefsHelper
 import com.bobbyesp.commonutilities.utils.ZipUtilities
-import com.fasterxml.jackson.databind.ObjectMapper
+import com.bobbyesp.library.dto.Song
+import kotlinx.serialization.builtins.ListSerializer
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.decodeFromJsonElement
 import org.apache.commons.io.FileUtils
 import java.io.File
 import java.io.FileOutputStream
@@ -57,8 +61,6 @@ open class SpotDL {
 
 
     private val id2Process = Collections.synchronizedMap(HashMap<String, Process>())
-
-    val objectMapper = ObjectMapper()
 
     //create a function that can be called out of this class to get the instance
     companion object {
@@ -230,7 +232,7 @@ open class SpotDL {
     @Throws(SpotDLException::class, InterruptedException::class)
     fun execute(
         request: SpotDLRequest,
-        processId: String,
+        processId: String?,
         callback: DownloadProgressCallback?
     ): SpotDLResponse {
         assertInit()
@@ -322,7 +324,7 @@ open class SpotDL {
 
         val elapsedTime = System.currentTimeMillis() - startTime
 
-        spotDLResponse = SpotDLResponse(command, exitCode, elapsedTime, out, err)
+        spotDLResponse = SpotDLResponse(command, exitCode, elapsedTime, outClean, errClean)
 
         if(BuildConfig.DEBUG) {
             Log.d("SpotDL", "Stdout: $outClean")
@@ -336,6 +338,38 @@ open class SpotDL {
         }
 
         return spotDLResponse
+    }
+
+    @Throws(SpotDLException::class, InterruptedException::class)
+    fun getSongInfo(url: String, isPlaylist: Boolean = false): List<Song> {
+        assertInit()
+        //Make sure that the path exists
+        val metadataDirectory = File("$HOME/.spotdl/meta_info/")
+
+        if(!metadataDirectory.exists()){
+            metadataDirectory.mkdirs()
+        }
+
+        //UUID for song identification
+        val songId = UUID.randomUUID().toString()
+        val request = SpotDLRequest()
+        request.addOption("save", url)
+        request.addOption("--save-file", "$HOME/.spotdl/meta_info/$songId.spotdl")
+        execute(request, null, null)
+
+        val songInfo: List<Song>
+        try{
+            //get the song info from the file with the songId and deserialize it
+            val file = File("$HOME/.spotdl/meta_info/$songId.spotdl")
+            val json = file.readText()
+            songInfo = Json.decodeFromString(ListSerializer(Song.serializer()), json)
+        }catch (e: Exception){
+            throw SpotDLException("Error parsing song info", e)
+        }
+
+        if(songInfo == null) throw SpotDLException("Failed fetching song info. Song info is null")
+
+        return songInfo
     }
 
     open fun destroyProcessById(id: String): Boolean {
@@ -359,7 +393,8 @@ open class SpotDL {
     }
 
     open fun version(appContext: Context): String? {
-        return SpotDLUpdater.getInstance().version(appContext)
+       // return SpotDLUpdater.getInstance().version(appContext)
+        return null
     }
 
     @Throws(SpotDLException::class)

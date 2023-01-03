@@ -67,6 +67,9 @@ fun HomePage(
                 Button(onClick = { homeViewModel.downloadSong(text) }) {
                     Text(text = "Download")
                 }
+                Button(onClick = {homeViewModel.requestSongInfo(text) }) {
+                    Text(text = "Request Song Info")
+                }
 
             }
         }

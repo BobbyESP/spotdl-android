@@ -112,6 +112,21 @@ class HomeViewModel @Inject constructor() : ViewModel() {
         }
     }
 
+    fun requestSongInfo(url: String) {
+        currentJob?.cancel()
+        currentJob = applicationScope.launch {
+            kotlin.runCatching {
+                try{
+                    val songInfo = SpotDL.getInstance().getSongInfo(url)
+                    Log.i(TAG, songInfo.toString())
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                    Log.d("MainActivity", "Error downloading song. ${e.message}")
+                }
+            }
+        }
+    }
+
     //Give permissions to a directory with chmod 777
     private fun givePermsWithChmod(path: String, perms: String = "777") {
         val command = "chmod -R $perms $path"
