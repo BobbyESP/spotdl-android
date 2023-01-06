@@ -5,6 +5,8 @@
 <h4>A SpotDL python library Android wrapper built with Kotlin</h4>
 </div>
 
+## 📣 DOCS IN PROGRESS!!
+
 ## 🎉 ANNOUNCEMENT: FIRST RELEASE
 The library has came out, go to the releases page and see!
 
