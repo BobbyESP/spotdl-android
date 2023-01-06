@@ -11,10 +11,12 @@ import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.decodeFromJsonElement
 import org.apache.commons.io.FileUtils
+import java.io.BufferedReader
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
 import java.io.InputStream
+import java.io.InputStreamReader
 import java.util.*
 
 open class SpotDL {
@@ -229,14 +231,17 @@ open class SpotDL {
         inputStream.close()
     }
 
+    @JvmOverloads
     @Throws(SpotDLException::class, InterruptedException::class)
     fun execute(
         request: SpotDLRequest,
         processId: String?,
-        callback: DownloadProgressCallback?
+        callback: ((Float, Long, String) -> Unit)? = null
     ): SpotDLResponse {
         assertInit()
+        //Check if the process ID already exists or not.
         if (id2Process.containsKey(processId)) throw SpotDLException("Process ID already exists")
+
         // disable caching unless it is explicitly requested
         if (!request.hasOption("--cache-path") || request.getOption("--cache-path") == null) {
             request.addOption("--no-cache")
@@ -244,15 +249,15 @@ open class SpotDL {
         //MANDATORY!
         request.addOption("--ffmpeg", ffmpegPath!!.absolutePath)
 
-        var spotDLResponse: SpotDLResponse
+        val spotDLResponse: SpotDLResponse
         val process: Process
-
         var exitCode: Int = 0
 
         val outBuffer = StringBuffer() //stdout
-        var errBuffer = StringBuffer() //stderr
 
-        var startTime = System.currentTimeMillis()
+        val errBuffer = StringBuffer() //stderr
+
+        val startTime = System.currentTimeMillis()
 
         val args = request.buildCommand()
 
@@ -269,34 +274,39 @@ open class SpotDL {
         env["PYTHONHOME"] = ENV_PYTHONHOME!!
         env["HOME"] = HOME!!
 
-        try {
-            process = processBuilder.start()
-            Log.d("SpotDL", "Process started. Process: $process")
+        process = try {
+            processBuilder.start()
         } catch (e: IOException) {
             throw SpotDLException("Error starting process", e)
         }
 
+        Log.d("SpotDL", "Started process: $process")
+
         if (processId != null) {
             id2Process[processId] = process
+            Log.d("SpotDL", "Added process to map: ${processId[0].code}")
         }
 
         val outStream: InputStream = process.inputStream
-
-        if(isDebug) Log.d("SpotDL", "Out stream: $outStream")
         val errStream: InputStream = process.errorStream
+        if(isDebug) Log.d("SpotDL", "Out stream: $outStream")
         if(isDebug) Log.d("SpotDL", "Err stream: $errStream")
 
         val stdOutProcessor = StreamProcessExtractor(
-            outBuffer, outStream,
+            outBuffer,
+            outStream,
             callback
         )
 
-        val stdErrProcessor = StreamProcessExtractor(errBuffer, errStream)
+        val stdErrProcessor = StreamGobbler(
+            errBuffer,
+            errStream
+        )
 
-        try {
+        exitCode = try {
             stdOutProcessor.join()
             stdErrProcessor.join()
-            var exitCode = process.waitFor()
+            process.waitFor()
         } catch (e: InterruptedException) {
             try {
                 process.destroy()
@@ -310,11 +320,10 @@ open class SpotDL {
         if (processId != null) id2Process.remove(processId)
 
         val out = outBuffer.toString()
+        val err = errBuffer.toString()
 
         //Delete ANSI (cleaner output)
         val outClean = out.replace("(?:\\x1B[@-Z\\\\-_]|[\\x80-\\x9A\\x9C-\\x9F]|(?:\\x1B\\[|\\x9B)[0-?]*[ -/]*[@-~])".toRegex(), "")
-
-        val err = errBuffer.toString()
         //Cleaner output
         val errClean = err.replace("(?:\\x1B[@-Z\\\\-_]|[\\x80-\\x9A\\x9C-\\x9F]|(?:\\x1B\\[|\\x9B)[0-?]*[ -/]*[@-~])".toRegex(), "")
 
@@ -327,12 +336,16 @@ open class SpotDL {
         spotDLResponse = SpotDLResponse(command, exitCode, elapsedTime, outClean, errClean)
 
         if(BuildConfig.DEBUG) {
+            Log.d("SpotDL", "Cleaned output --------------------------------------")
             Log.d("SpotDL", "Stdout: $outClean")
             Log.e("SpotDL", "Stderr: $errClean")
             Log.d(
                 "SpotDL",
                 "------------------------------------------------------------------------------"
             )
+            Log.d("SpotDL", "Raw output --------------------------------------")
+            Log.d("SpotDL", "Stdout: $out")
+            Log.e("SpotDL", "Stderr: $err")
             Log.d("SpotDL", "Process: $processId finished with exit code: $exitCode")
             Log.d("SpotDL", "Process: $spotDLResponse")
         }

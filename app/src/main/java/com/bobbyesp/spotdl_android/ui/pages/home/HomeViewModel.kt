@@ -1,5 +1,6 @@
 package com.bobbyesp.spotdl_android.ui.pages.home
 
+import android.content.Intent
 import android.net.Uri
 import android.os.Environment
 import android.os.Looper
@@ -11,11 +12,14 @@ import androidx.lifecycle.ViewModel
 import com.bobbyesp.library.DownloadProgressCallback
 import com.bobbyesp.library.SpotDL
 import com.bobbyesp.library.SpotDLRequest
+import com.bobbyesp.library.dto.Song
 import com.bobbyesp.spotdl_android.App.Companion.applicationScope
 import com.bobbyesp.spotdl_android.App.Companion.context
 import com.bobbyesp.spotdl_android.BuildConfig
+import com.bobbyesp.spotdl_android.ui.StateHolder.mutableTaskState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.io.File
 import java.util.*
@@ -27,9 +31,9 @@ class HomeViewModel @Inject constructor() : ViewModel() {
     private var currentJob: Job? = null
 
     //TAG
-    private val TAG = "SpotDL"
+    private val TAG = "HomeViewModel"
 
-    fun downloadSong(link: String) {
+    fun downloadSong(link: String, progressCallback: ((Float, Long, String) -> Unit)?) {
         currentJob?.cancel()
         currentJob = applicationScope.launch {
             //if a looper is not present, the app will crash so we need to create one and if it is present, we need to use it
@@ -42,8 +46,6 @@ class HomeViewModel @Inject constructor() : ViewModel() {
             kotlin.runCatching {
                 try {
                     Toast.makeText(context, "Downloading...", Toast.LENGTH_SHORT).show()
-                    givePermsWithChmod("/data/user/0/com.bobbyesp.spotdl_android/files/spotdl/.spotdl", "777")
-
                     val spotDLDir = File(
                         Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
                         "spotdl"
@@ -75,8 +77,16 @@ class HomeViewModel @Inject constructor() : ViewModel() {
                         "spotdl"
                     )
 
+                    //Request song info
+                    val songInfo = SpotDL.getInstance().getSongInfo(link)
+
+                    mutableTaskState.update {
+                        it.copy(songInfo = songInfo)
+                    }
+
                     val request = SpotDLRequest()
                     request.addOption("download", link)
+                    request.addOption("--log-level", "DEBUG")
                     request.addOption("--output", downloadDir.absolutePath)
                     val processId = UUID.randomUUID().toString()
 
@@ -84,7 +94,7 @@ class HomeViewModel @Inject constructor() : ViewModel() {
                     for (s in request.buildCommand()) Log.d(TAG, s)
 
                     SpotDL.getInstance()
-                        .execute(request, processId, callback = Callback())
+                        .execute(request, processId, progressCallback)
                     Toast.makeText(context, "Downloaded!", Toast.LENGTH_SHORT).show()
                 } catch (e: Exception) {
                     e.printStackTrace()
@@ -93,39 +103,35 @@ class HomeViewModel @Inject constructor() : ViewModel() {
             }
         }
     }
-
-    fun downloadFFmpeg() {
+    fun requestSongInfo(url: String): List<Song> {
+        var info: List<Song> = emptyList()
         currentJob?.cancel()
         currentJob = applicationScope.launch {
             kotlin.runCatching {
                 try {
-                    val request = SpotDLRequest()
-                    request.addOption("--download-ffmpeg")
-                    val processId = UUID.randomUUID().toString()
-                    SpotDL.getInstance()
-                        .execute(request, processId, callback = Callback())
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                    Log.d("MainActivity", "Error downloading song. ${e.message}")
-                }
-            }
-        }
-    }
-
-    fun requestSongInfo(url: String) {
-        currentJob?.cancel()
-        currentJob = applicationScope.launch {
-            kotlin.runCatching {
-                try{
                     val songInfo = SpotDL.getInstance().getSongInfo(url)
                     Log.i(TAG, songInfo.toString())
+                    info = songInfo
+                    mutableTaskState.update {
+                        it.copy(songInfo = info)
+                    }
                 } catch (e: Exception) {
                     e.printStackTrace()
                     Log.d("MainActivity", "Error downloading song. ${e.message}")
                 }
             }
         }
+        return info
     }
+
+    //open the url in the browser
+    fun openUrl(url: String) {
+        val intent = Intent(Intent.ACTION_VIEW)
+        intent.data = Uri.parse(url)
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        context.startActivity(intent)
+    }
+
 
     //Give permissions to a directory with chmod 777
     private fun givePermsWithChmod(path: String, perms: String = "777") {
