@@ -2,7 +2,7 @@
 <h1>SpotDL Android</h1>
 </div>
 <div align="center">
-<h4>A SpotDL python library Android wrapper built with Kotlin</h4>
+<h4>A SpotDL (python library) Android wrapper built with Kotlin</h4>
 </div>
 
 ## 📣 DOCS IN PROGRESS!!
