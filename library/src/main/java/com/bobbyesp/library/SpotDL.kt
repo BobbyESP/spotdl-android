@@ -336,16 +336,12 @@ open class SpotDL {
         spotDLResponse = SpotDLResponse(command, exitCode, elapsedTime, outClean, errClean)
 
         if(BuildConfig.DEBUG) {
-            Log.d("SpotDL", "Cleaned output --------------------------------------")
             Log.d("SpotDL", "Stdout: $outClean")
             Log.e("SpotDL", "Stderr: $errClean")
             Log.d(
                 "SpotDL",
                 "------------------------------------------------------------------------------"
             )
-            Log.d("SpotDL", "Raw output --------------------------------------")
-            Log.d("SpotDL", "Stdout: $out")
-            Log.e("SpotDL", "Stderr: $err")
             Log.d("SpotDL", "Process: $processId finished with exit code: $exitCode")
             Log.d("SpotDL", "Process: $spotDLResponse")
         }

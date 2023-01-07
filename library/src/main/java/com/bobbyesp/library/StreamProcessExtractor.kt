@@ -32,20 +32,18 @@ internal class StreamProcessExtractor(
 
     override fun run() {
         try {
-            //Read the stream
-            val `in`: Reader = InputStreamReader(stream)
-            var nextChar: Int
-
-            while (`in`.read().also { nextChar = it } != -1) {
-                //appending the char to the buffer
-                buffer.append(nextChar.toChar())
-                Log.d("StreamProcessExtractor", buffer.toString())
-                //Clean the output
-                val cleanOutMatcher: Matcher = cleanOutRegex.matcher(buffer)
-                val cleanOut = cleanOutMatcher.replaceAll("")
-                //Log.d("StreamProcessExtractor", cleanOut)
-                //Call the callback with random values except the clean output
-                callback?.invoke(1f, 170, cleanOut)
+            //Read the stream and get the output line by line on real time
+            val reader: Reader = InputStreamReader(stream, StandardCharsets.UTF_8)
+            val bufferedReader = BufferedReader(reader)
+            var line: String?
+            while (bufferedReader.readLine().also { line = it } != null) {
+                //Just read the line, cut that line in it's end and add it to the buffer. Then, the buffer will be read by the UI and after that, it will be cleared
+                //clena output
+                val matcher: Matcher = cleanOutRegex.matcher(line)
+                val cleanLine = matcher.replaceAll("")
+                processOutputLine(cleanLine)
+                buffer.setLength(0)
+                continue
             }
 
         } catch (e: IOException) {
@@ -53,7 +51,11 @@ internal class StreamProcessExtractor(
         }
     }
 
+
+
     private fun processOutputLine(line: String) {
+        //if is debug, print the line
+        if (BuildConfig.DEBUG) Log.d(TAG, line)
         callback?.let { it(getProgress(line), getEta(line), line) }
     }
 
@@ -67,20 +69,6 @@ internal class StreamProcessExtractor(
 
 
     //TESTS FIELD
-    /*if(isDebug){
-        //show the ouput until the process is finished
-        val outReader = BufferedReader(InputStreamReader(outStream))
-        val errReader = BufferedReader(InputStreamReader(errStream))
-        var line: String?
-        while (true) {
-            Thread.sleep(100)
-            line = outReader.readLine()
-            if(line == null) break
-            outBuffer.append(line)
-            outBuffer.append("\n")
-            Log.d("SpotDL", "Out: $line")
-        }
-    }*/
 
     companion object{
         private val TAG = StreamProcessExtractor::class.java.simpleName

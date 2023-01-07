@@ -46,6 +46,9 @@ class HomeViewModel @Inject constructor() : ViewModel() {
             kotlin.runCatching {
                 try {
                     Toast.makeText(context, "Downloading...", Toast.LENGTH_SHORT).show()
+                    mutableTaskState.update {
+                        it.copy(isDownloading = true)
+                    }
                     val spotDLDir = File(
                         Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
                         "spotdl"
@@ -87,6 +90,7 @@ class HomeViewModel @Inject constructor() : ViewModel() {
                     val request = SpotDLRequest()
                     request.addOption("download", link)
                     request.addOption("--log-level", "DEBUG")
+                    //request.addOption("--simple-tui")
                     request.addOption("--output", downloadDir.absolutePath)
                     val processId = UUID.randomUUID().toString()
 
@@ -96,6 +100,9 @@ class HomeViewModel @Inject constructor() : ViewModel() {
                     SpotDL.getInstance()
                         .execute(request, processId, progressCallback)
                     Toast.makeText(context, "Downloaded!", Toast.LENGTH_SHORT).show()
+                    mutableTaskState.update {
+                        it.copy(isDownloading = false)
+                    }
                 } catch (e: Exception) {
                     e.printStackTrace()
                     Log.d("MainActivity", "Error downloading song. ${e.message}")
@@ -109,11 +116,14 @@ class HomeViewModel @Inject constructor() : ViewModel() {
         currentJob = applicationScope.launch {
             kotlin.runCatching {
                 try {
+                    mutableTaskState.update {
+                        it.copy(isDownloading = true)
+                    }
                     val songInfo = SpotDL.getInstance().getSongInfo(url)
                     Log.i(TAG, songInfo.toString())
                     info = songInfo
                     mutableTaskState.update {
-                        it.copy(songInfo = info)
+                        it.copy(songInfo = info, isDownloading = false)
                     }
                 } catch (e: Exception) {
                     e.printStackTrace()

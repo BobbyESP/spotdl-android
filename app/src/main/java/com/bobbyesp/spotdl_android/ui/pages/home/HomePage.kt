@@ -130,13 +130,15 @@ fun HomePage(
                         errorTrailingIconColor = MaterialTheme.colorScheme.primary,
                     )
                 )
-                LinearProgressIndicator(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(start = 16.dp, end = 16.dp),
-                    progress = taskState.progress,
-                    color = MaterialTheme.colorScheme.primary
-                )
+                AnimatedVisibility(visible = taskState.isDownloading) {
+                    LinearProgressIndicator(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(start = 16.dp, end = 16.dp),
+                        //progress = taskState.progress, //Have to fix StreamProcessExtractor
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
                 //Text with the output of the download
                 Text(taskState.progressText, modifier = Modifier.padding(4.dp))
 

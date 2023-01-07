@@ -15,5 +15,6 @@ object StateHolder {
         val progress: Float = 0f,
         val progressText: String = "",
         val songInfo: List<Song> = emptyList(),
+        val isDownloading: Boolean = false,
     )
 }
