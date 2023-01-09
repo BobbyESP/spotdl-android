@@ -181,6 +181,7 @@ open class SpotDL {
                 FileUtils.deleteQuietly(pythonDir)
                 throw SpotDLException("Error extracting python files", e)
             }
+            //We check if there's a new python version
             updatePython(appContext, pythonSize)
         }
 

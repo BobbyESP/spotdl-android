@@ -36,15 +36,20 @@ internal class StreamProcessExtractor(
             val reader: Reader = InputStreamReader(stream, StandardCharsets.UTF_8)
             val bufferedReader = BufferedReader(reader)
             var line: String?
+            val arrayOfLines: MutableList<String> = mutableListOf()
             while (bufferedReader.readLine().also { line = it } != null) {
                 //Just read the line, cut that line in it's end and add it to the buffer. Then, the buffer will be read by the UI and after that, it will be cleared
-                //clena output
+                //clean output
                 val matcher: Matcher = cleanOutRegex.matcher(line)
                 val cleanLine = matcher.replaceAll("")
                 processOutputLine(cleanLine)
+                arrayOfLines.add(cleanLine)
                 buffer.setLength(0)
                 continue
             }
+
+            //Make appear all the lines in the stdOut of the Logcat
+            buffer.append(arrayOfLines.joinToString("\n"))
 
         } catch (e: IOException) {
             if (BuildConfig.DEBUG) Log.e(TAG, "failed to read stream", e)
