@@ -5,6 +5,8 @@
 <h4>A SpotDL (python library) Android wrapper built with Kotlin</h4>
 </div>
 
+## DOWNLOAD SAMPLE APP
+Download the sample app from the version 0.1.0 in the releases page. A new app and lib update is coming with fixes.
 ## 📣 DOCS IN PROGRESS!!
 
 ## 🎉 ANNOUNCEMENT: FIRST RELEASE
