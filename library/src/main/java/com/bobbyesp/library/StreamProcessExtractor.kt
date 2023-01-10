@@ -42,13 +42,15 @@ internal class StreamProcessExtractor(
                 //clean output
                 val matcher: Matcher = cleanOutRegex.matcher(line)
                 val cleanLine = matcher.replaceAll("")
-                processOutputLine(cleanLine)
+                if(cleanLine != "") processOutputLine(cleanLine)
                 arrayOfLines.add(cleanLine)
                 buffer.setLength(0)
                 continue
             }
 
             //Make appear all the lines in the stdOut of the Logcat
+            //delete from the array the empty lines
+            arrayOfLines.removeAll { it == "" }
             buffer.append(arrayOfLines.joinToString("\n"))
 
         } catch (e: IOException) {
@@ -65,24 +67,37 @@ internal class StreamProcessExtractor(
     }
 
     private fun getProgress(line: String): Float{
-        return 1f
+        //Get the two numbers before an % in the line
+        val regex = Regex("(\\d+)%")
+        val matchResult = regex.find(line)
+        //Log the result
+        if (BuildConfig.DEBUG) Log.d(TAG, "Progress: ${matchResult?.groupValues?.get(1)?.toFloat() ?: 0f}")
+        PERCENT = matchResult?.groupValues?.get(1)?.toFloat() ?: 0f
+        //divide percent by 100 to get a value between 0 and 1
+        return PERCENT / 100f
     }
 
     private fun getEta(line: String): Long{
-        return 1
+        //Get the estimated time from the numbers with this format "00:00:00
+        val regex = Regex("(\\d+:\\d+:\\d+)")
+        val matchResult = regex.find(line)
+        //Separate the result by 3 groups; hours, minutes and seconds
+        val hours = matchResult?.groupValues?.get(1)?.split(":")?.get(0)?.toInt() ?: 0
+        val minutes = matchResult?.groupValues?.get(1)?.split(":")?.get(1)?.toInt() ?: 0
+        val seconds = matchResult?.groupValues?.get(1)?.split(":")?.get(2)?.toInt() ?: 0
+        //Log the result
+        if (BuildConfig.DEBUG) Log.d(TAG, "ETA: $hours:$minutes:$seconds")
+        //Convert the time to seconds
+        ETA = (hours * 3600 + minutes * 60 + seconds).toLong()
+        return ETA
+
     }
-
-
-    //TESTS FIELD
 
     companion object{
         private val TAG = StreamProcessExtractor::class.java.simpleName
 
         private var ETA: Long = -1
         private var PERCENT = -1.0f
-        private var GROUP_PERCENT = 1
-        private var GROUP_MINUTES = 2
-        private var GROUP_SECONDS = 3
     }
 
 }

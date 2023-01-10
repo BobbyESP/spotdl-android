@@ -274,6 +274,10 @@ open class SpotDL {
         env["PATH"] = System.getenv("PATH")!! + ":" + binDir!!.absolutePath + ":" + ffmpegPath!!.absolutePath
         env["PYTHONHOME"] = ENV_PYTHONHOME!!
         env["HOME"] = HOME!!
+        //ENVIRONMENT VARIABLES TO FORCE RICH PYTHON LIB TO SHOW THE PROGRESS LINE.
+        //Thanks xnetcat (https://github.com/xnetcat) (principal spotdl library developer/maintainer) for the help and time!
+        env["TERM"] = "xterm-256color"
+        env["FORCE_COLOR"] = "true"
 
         process = try {
             processBuilder.start()

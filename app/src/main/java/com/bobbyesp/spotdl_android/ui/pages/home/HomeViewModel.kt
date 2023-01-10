@@ -45,7 +45,6 @@ class HomeViewModel @Inject constructor() : ViewModel() {
             }
             kotlin.runCatching {
                 try {
-                    Toast.makeText(context, "Downloading...", Toast.LENGTH_SHORT).show()
                     mutableTaskState.update {
                         it.copy(isDownloading = true)
                     }
@@ -79,7 +78,7 @@ class HomeViewModel @Inject constructor() : ViewModel() {
                         Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
                         "spotdl"
                     )
-
+                    Toast.makeText(context, "Getting song info...", Toast.LENGTH_SHORT).show()
                     //Request song info
                     val songInfo = SpotDL.getInstance().getSongInfo(link)
 
@@ -89,7 +88,7 @@ class HomeViewModel @Inject constructor() : ViewModel() {
 
                     val request = SpotDLRequest()
                     request.addOption("download", link)
-                    request.addOption("--log-level", "DEBUG")
+                    //request.addOption("--log-level", "DEBUG")
                     //request.addOption("--simple-tui")
                     request.addOption("--output", downloadDir.absolutePath)
                     val processId = UUID.randomUUID().toString()
@@ -97,6 +96,7 @@ class HomeViewModel @Inject constructor() : ViewModel() {
                     //Print every command
                     for (s in request.buildCommand()) Log.d(TAG, s)
 
+                    Toast.makeText(context, "Downloading...", Toast.LENGTH_SHORT).show()
                     SpotDL.getInstance()
                         .execute(request, processId, progressCallback)
                     Toast.makeText(context, "Downloaded!", Toast.LENGTH_SHORT).show()

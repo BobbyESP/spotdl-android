@@ -131,7 +131,9 @@ fun HomePage(
                     )
                 )
                 AnimatedVisibility(visible = taskState.isDownloading) {
+                    //Linear progress indicator with the progress from the task state
                     LinearProgressIndicator(
+                        progress = taskState.progress,
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(start = 16.dp, end = 16.dp),
@@ -144,8 +146,9 @@ fun HomePage(
 
                 Button(onClick = {
                     homeViewModel.downloadSong(text) { progress, _, line ->
+                        //Divide the progress by 100 to get a value between 0 and 1
                         StateHolder.mutableTaskState.update {
-                            it.copy(progress = progress, progressText = line)
+                            it.copy(progress = progress , progressText = line)
                         }
                     }
                 }) {
