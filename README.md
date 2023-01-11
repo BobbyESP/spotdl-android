@@ -8,6 +8,8 @@
 ## ⬇️ DOWNLOAD SAMPLE APP
 Download the sample app from the [releases](https://github.com/BobbyESP/spotdl-android/releases/latest) page.
 
+Note that this app is just an example of the usage of this library. Many people asked me for new features, but I'm making a brand new app that will be fully customizable and with the ability to use custom commands along other things. This app is Spowlo. Currently it is only a Spotify mods downloader, but I'm doing a remake in a secondary branch in the same repo called "remake", where I'll be coding the new app that will have as principal functionality download songs (and also the mod downloader inside the app!). I'll keep you updated! 
+
 ## 📣 DOCS IN PROGRESS!!
 
 ## 🎉 ANNOUNCEMENT: FIRST RELEASE
