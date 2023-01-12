@@ -103,7 +103,7 @@ Getting a final try-catch like this:
 
 - [xnetcat](https://github.com/xnetcat) for helping me understand some parts/commands of Linux (XD), fix some bugs of this wrapper and for giving us all the files and binaries needed for working!
 
-- [JunkFood02](https://github.com/Junfood02) for helping me fix some bugs and explain me some code and functionality of the youtubedl-android library (in which this library is a little based on) and explaining me the storage framework of Android.
+- [JunkFood02](https://github.com/Junkfood02) for helping me fix some bugs and explain me some code and functionality of the youtubedl-android library (in which this library is a little based on) and explaining me the storage framework of Android.
 
 - [youtubedl-android](https://github.com/yausername/youtubedl-android) for some parts of the code of the library aswell as the inspiration for making this library (I really wanted to learn how to do one!)
 
