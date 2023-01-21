@@ -5,8 +5,11 @@
 <h4>A SpotDL (python library) Android wrapper built with Kotlin</h4>
 </div>
 
-## DOWNLOAD SAMPLE APP
-Download the sample app from the version 0.1.0 in the releases page. A new app and lib update is coming with fixes.
+## ⬇️ DOWNLOAD SAMPLE APP
+Download the sample app from the [releases](https://github.com/BobbyESP/spotdl-android/releases/latest) page.
+
+Note that this app is just an example of the usage of this library. Many people asked me for new features, but I'm making a brand new app that will be fully customizable and with the ability to use custom commands along other things. This app is Spowlo. Currently it is only a Spotify mods downloader, but I'm doing a remake in a secondary branch in the same repo called "remake", where I'll be coding the new app that will have as principal functionality download songs (and also the mod downloader inside the app!). I'll keep you updated! 
+
 ## 📣 DOCS IN PROGRESS!!
 
 ## 🎉 ANNOUNCEMENT: FIRST RELEASE
@@ -100,7 +103,7 @@ Getting a final try-catch like this:
 
 - [xnetcat](https://github.com/xnetcat) for helping me understand some parts/commands of Linux (XD), fix some bugs of this wrapper and for giving us all the files and binaries needed for working!
 
-- [JunkFood02](https://github.com/Junfood02) for helping me fix some bugs and explain me some code and functionality of the youtubedl-android library (in which this library is a little based on) and explaining me the storage framework of Android.
+- [JunkFood02](https://github.com/Junkfood02) for helping me fix some bugs and explain me some code and functionality of the youtubedl-android library (in which this library is a little based on) and explaining me the storage framework of Android.
 
 - [youtubedl-android](https://github.com/yausername/youtubedl-android) for some parts of the code of the library aswell as the inspiration for making this library (I really wanted to learn how to do one!)
 
