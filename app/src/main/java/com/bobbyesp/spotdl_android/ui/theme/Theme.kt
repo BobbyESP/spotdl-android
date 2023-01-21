@@ -44,6 +44,9 @@ fun SpotdlandroidTheme(
     dynamicColor: Boolean = true,
     content: @Composable () -> Unit
 ) {
+    //make the status bar transparent
+    val context = LocalContext.current
+
     val colorScheme = when {
         dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
             val context = LocalContext.current
@@ -55,8 +58,10 @@ fun SpotdlandroidTheme(
     val view = LocalView.current
     if (!view.isInEditMode) {
         SideEffect {
-            (view.context as Activity).window.statusBarColor = colorScheme.primary.toArgb()
+            (view.context as Activity).window.statusBarColor = colorScheme.background.toArgb()
             ViewCompat.getWindowInsetsController(view)?.isAppearanceLightStatusBars = darkTheme
+            //navigation bar color
+            (view.context as Activity).window.navigationBarColor = colorScheme.background.toArgb()
         }
     }
 

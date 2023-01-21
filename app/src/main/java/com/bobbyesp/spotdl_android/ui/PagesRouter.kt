@@ -16,6 +16,7 @@ import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import com.bobbyesp.spotdl_android.ui.common.Routes
 import com.bobbyesp.spotdl_android.ui.common.animatedComposable
+import com.bobbyesp.spotdl_android.ui.pages.PlaceholderPage
 import com.bobbyesp.spotdl_android.ui.pages.home.HomePage
 import com.bobbyesp.spotdl_android.ui.pages.home.HomeViewModel
 import com.google.accompanist.navigation.animation.AnimatedNavHost
@@ -56,11 +57,11 @@ fun PagesRouter(
                 }
 
                 animatedComposable(Routes.SETTINGS) {
-                    //TODO
+                    PlaceholderPage(navController = navController)
                 }
 
                 animatedComposable(Routes.DOWNLOADS_HISTORY) {
-                    //TODO
+                    PlaceholderPage(navController = navController)
                 }
             }
         }

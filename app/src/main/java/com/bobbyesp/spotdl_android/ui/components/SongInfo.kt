@@ -2,12 +2,14 @@ package com.bobbyesp.spotdl_android.ui.components
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -31,9 +33,13 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.outlined.ArrowDropDown
 import androidx.compose.material3.Text
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.bobbyesp.library.dto.Song
+import com.bobbyesp.spotdl_android.ui.common.AsyncImageImpl
+import com.bobbyesp.spotdl_android.utils.GeneralUtils
 import kotlin.reflect.full.memberProperties
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -121,22 +127,259 @@ fun SongInfo(
                         .height(500.dp)
                 ) {
                     LazyColumn {
+                        item {
+                            if (songs[0].song_list != null) {
+                                ElevatedCard(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .background(MaterialTheme.colorScheme.surface)
+                                        .padding(4.dp),
+                                    shape = MaterialTheme.shapes.small,
+                                ) {
+                                    Column(Modifier.fillMaxWidth()) {
+                                        Row(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ) {
+                                            songs[0].song_list?.cover_url?.let {
+                                                AsyncImageImpl(
+                                                    modifier = Modifier
+                                                        .padding(16.dp)
+                                                        .size(84.dp)
+                                                        .aspectRatio(
+                                                            1f,
+                                                            matchHeightConstraintsFirst = true
+                                                        )
+                                                        .clip(MaterialTheme.shapes.small),
+                                                    model = it,
+                                                    contentDescription = "Song cover",
+                                                    contentScale = ContentScale.Crop,
+                                                )
+                                            }
+                                            Column() {
+                                                Text(
+                                                    text = songs[0].song_list?.name ?: "Unknown",
+                                                    fontWeight = FontWeight.Bold,
+                                                    style = MaterialTheme.typography.titleLarge
+                                                )
+                                                Spacer(modifier = Modifier.height(6.dp))
+                                                Text(
+                                                    text = songs[0].song_list?.author_name
+                                                        ?: "Unknown",
+                                                    style = MaterialTheme.typography.bodyLarge,
+                                                    modifier = Modifier.alpha(alpha = 0.8f)
+                                                )
+                                            }
+
+                                        }
+                                    }
+                                }
+
+                                Text(
+                                    text = "Playlist with ${songs.size} songs",
+                                    modifier = Modifier.padding(4.dp),
+                                    fontWeight = FontWeight.Bold,
+                                    style = MaterialTheme.typography.titleLarge
+                                )
+                            }
+                        }
                         items(
                             items = songs,
                         ) { song ->
-                            if (songs[0].tracks_count == 1) {
-                                val propertiesOfDto = song::class.memberProperties
-                                for (property in propertiesOfDto) {
-                                    Text(
-                                        text = "${property.name}: ${property.getter.call(song)}",
-                                        modifier = Modifier.padding(4.dp)
+                            if (songs[0].song_list == null) {
+                                MetadataInfo(type = "Song name", value = song.name)
+                                MetadataInfo(
+                                    type = "Song artists",
+                                    value = song.artists.toString()
+                                )
+                                MetadataInfo(type = "Song main artist", value = song.artist)
+                                MetadataInfo(type = "Song album", value = song.album_name)
+                                MetadataInfo(
+                                    type = "Song album artist",
+                                    value = song.album_artist
+                                )
+                                MetadataInfo(
+                                    type = "Song genres",
+                                    value = song.genres.toString()
+                                )
+                                MetadataInfo(
+                                    type = "Song disc number",
+                                    value = song.disc_number.toString()
+                                )
+                                MetadataInfo(
+                                    type = "Song disc count",
+                                    value = song.disc_count.toString()
+                                )
+                                MetadataInfo(
+                                    type = "Song duration",
+                                    value = song.duration.toString() + "//" + GeneralUtils.convertDuration(
+                                        song.duration
                                     )
+                                )
+                                MetadataInfo(
+                                    type = "Song year",
+                                    value = song.year.toString()
+                                )
+                                MetadataInfo(type = "Song date", value = song.date)
+                                MetadataInfo(
+                                    type = "Song track number",
+                                    value = song.track_number.toString()
+                                )
+                                MetadataInfo(type = "Song Spotify ID", value = song.song_id)
+                                MetadataInfo(
+                                    type = "Is Explicit",
+                                    value = song.explicit.toString()
+                                )
+                                MetadataInfo(
+                                    type = "Song publisher",
+                                    value = song.publisher
+                                )
+                                MetadataInfo(type = "Song url", value = song.url)
+                                MetadataInfo(
+                                    type = "Song cover url",
+                                    value = song.cover_url
+                                )
+                                MetadataInfo(type = "Song ISRC", value = song.isrc)
+                                MetadataInfo(
+                                    type = "Song copyright text",
+                                    value = song.copyright_text
+                                )
+                            } else {
+                                ElevatedCard(
+                                    modifier = Modifier
+                                        .fillMaxWidth(),
+                                    shape = MaterialTheme.shapes.small
+                                ) {
+                                    Row(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(start = 8.dp, top = 8.dp, bottom = 8.dp),
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        AsyncImageImpl(
+                                            modifier = Modifier
+                                                .size(64.dp)
+                                                .aspectRatio(
+                                                    1f,
+                                                    matchHeightConstraintsFirst = true
+                                                )
+                                                .clip(MaterialTheme.shapes.small),
+                                            model = song.cover_url,
+                                            contentDescription = "Song cover",
+                                            contentScale = ContentScale.Crop,
+                                        )
+                                        Column(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .padding(start = 8.dp)
+                                        ) {
+                                            Text(
+                                                text = song.name,
+                                                fontWeight = FontWeight.Bold,
+                                                style = MaterialTheme.typography.titleLarge
+                                            )
+                                            Spacer(modifier = Modifier.height(6.dp))
+                                            Text(
+                                                text = song.artist,
+                                                style = MaterialTheme.typography.bodyLarge,
+                                                modifier = Modifier.alpha(alpha = 0.8f)
+                                            )
+
+                                        }
+                                    }
+                                    Column(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(8.dp)
+                                    ) {
+                                        MetadataInfo(type = "Song name", value = song.name)
+                                        MetadataInfo(
+                                            type = "Song artists",
+                                            value = song.artists.toString()
+                                        )
+                                        MetadataInfo(type = "Song main artist", value = song.artist)
+                                        MetadataInfo(type = "Song album", value = song.album_name)
+                                        MetadataInfo(
+                                            type = "Song album artist",
+                                            value = song.album_artist
+                                        )
+                                        MetadataInfo(
+                                            type = "Song genres",
+                                            value = song.genres.toString()
+                                        )
+                                        MetadataInfo(
+                                            type = "Song disc number",
+                                            value = song.disc_number.toString()
+                                        )
+                                        MetadataInfo(
+                                            type = "Song disc count",
+                                            value = song.disc_count.toString()
+                                        )
+                                        MetadataInfo(
+                                            type = "Song duration",
+                                            value = song.duration.toString() + "//" + GeneralUtils.convertDuration(
+                                                song.duration
+                                            )
+                                        )
+                                        MetadataInfo(
+                                            type = "Song year",
+                                            value = song.year.toString()
+                                        )
+                                        MetadataInfo(type = "Song date", value = song.date)
+                                        MetadataInfo(
+                                            type = "Song track number",
+                                            value = song.track_number.toString()
+                                        )
+                                        MetadataInfo(type = "Song Spotify ID", value = song.song_id)
+                                        MetadataInfo(
+                                            type = "Is Explicit",
+                                            value = song.explicit.toString()
+                                        )
+                                        MetadataInfo(
+                                            type = "Song publisher",
+                                            value = song.publisher
+                                        )
+                                        MetadataInfo(type = "Song url", value = song.url)
+                                        MetadataInfo(
+                                            type = "Song cover url",
+                                            value = song.cover_url
+                                        )
+                                        MetadataInfo(type = "Song ISRC", value = song.isrc)
+                                        MetadataInfo(
+                                            type = "Song copyright text",
+                                            value = song.copyright_text
+                                        )
+                                    }
                                 }
+                                Spacer(modifier = Modifier.height(8.dp))
                             }
                         }
                     }
                 }
             }
         }
+    }
+}
+
+@Composable
+fun MetadataInfo(type: String, value: String) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(4.dp)
+    ) {
+        Text(
+            text = "$type: ",
+            modifier = Modifier
+                .padding(end = 4.dp)
+                .weight(1f),
+            fontWeight = FontWeight.Bold
+        )
+        Text(
+            text = value,
+            modifier = Modifier
+                .padding(start = 4.dp)
+                .weight(1f)
+        )
     }
 }

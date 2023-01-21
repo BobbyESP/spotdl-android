@@ -34,8 +34,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.compose.ui.text.input.*
@@ -99,23 +101,23 @@ fun HomePage(
                 }
             })
         }, floatingActionButton = {
-            FABs(
-                modifier = with(receiver = Modifier.padding()) {
-                    this.imePadding()
-                },
-                downloadCallback = {
-                    homeViewModel.downloadSong(text) { progress, _, line ->
-                        //Divide the progress by 100 to get a value between 0 and 1
-                        StateHolder.mutableTaskState.update {
-                            it.copy(progress = progress, progressText = line)
+            AnimatedVisibility(visible = true) {
+                FABs(
+                    modifier = with(receiver = Modifier.padding()) {
+                        this.imePadding()
+                    },
+                    downloadCallback = {
+                        homeViewModel.downloadSong(text) { progress, _, line ->
+                            //Divide the progress by 100 to get a value between 0 and 1
+                            StateHolder.mutableTaskState.update {
+                                it.copy(progress = progress, progressText = line)
+                            }
                         }
-                    }
-                },
-                pasteCallback = { setText(clipboardManager.getText().toString()) },
-                requestInfoCallback = { homeViewModel.requestSongInfo(text) }
-            )
-
-
+                    },
+                    pasteCallback = { setText(clipboardManager.getText().toString()) },
+                    requestInfoCallback = { homeViewModel.requestSongInfo(text) }
+                )
+            }
         }) {
             Surface(
                 modifier = Modifier
@@ -203,6 +205,15 @@ fun HomePage(
                                 SongInfo(songs = taskState.songInfo)
                                 Spacer(modifier = Modifier.height(8.dp))
                             }
+                        }
+                        Text(
+                            text = "By the moment, the downloads directory is the Downloads folder of your phone into the spotdl subfolder.",
+                            modifier = Modifier.padding(16.dp),
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontStyle = FontStyle.Italic
+                        )
+                        Button(onClick = { homeViewModel.openDownloadsFolder() }, modifier = Modifier.fillMaxWidth().padding(start = 32.dp, end = 32.dp)) {
+                            Text(text = "Open Downloads Folder")
                         }
                     }
                 }

@@ -35,6 +35,9 @@ class HomeViewModel @Inject constructor() : ViewModel() {
     //TAG
     private val TAG = "HomeViewModel"
 
+    //package manager
+    private val packageManager = context.packageManager
+
     fun downloadSong(link: String, progressCallback: ((Float, Long, String) -> Unit)?) {
         currentJob?.cancel()
         currentJob = applicationScope.launch {
@@ -152,6 +155,26 @@ class HomeViewModel @Inject constructor() : ViewModel() {
         mutableTaskState.update {
             it.copy(progress = 0f, isDownloading = false, progressText = "")
         }
+    }
+
+    fun openDownloadsFolder(){
+        //open the downloads folder in the system file manager
+        val intent = Intent(Intent.ACTION_VIEW)
+        val downloadDir = File(
+            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
+            "spotdl"
+        )
+        Log.d(TAG, downloadDir.absolutePath)
+        val uri: Uri = Uri.parse(downloadDir.absolutePath)
+        intent.setDataAndType(uri, "*/*")
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        val activities = packageManager.queryIntentActivities(intent, 0)
+        if(activities.isNotEmpty()){
+            context.startActivity(intent)
+        }else{
+            Toast.makeText(context, "No file manager found", Toast.LENGTH_SHORT).show()
+        }
+
     }
 
 }
