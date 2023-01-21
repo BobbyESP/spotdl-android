@@ -36,8 +36,19 @@ data class SongList(
     val url: String,
     val urls: List<String>,
     val songs: List<Song>,
-    val description: String,
-    val author_url: String,
-    val author_name: String,
-    val cover_url: String
+    val artist: ArtistSongInfo,
+    val description: String = "",
+    val author_url: String = "",
+    val author_name: String = "",
+    val cover_url: String = "",
+)
+
+@Serializable
+data class ArtistSongInfo(
+    val external_urls: Map<String, String>,
+    val href: String,
+    val id: String,
+    val name: String,
+    val type: String,
+    val uri: String
 )

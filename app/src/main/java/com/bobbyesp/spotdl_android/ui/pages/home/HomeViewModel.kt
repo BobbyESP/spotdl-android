@@ -115,6 +115,7 @@ class HomeViewModel @Inject constructor() : ViewModel() {
                 } catch (e: Exception) {
                     e.printStackTrace()
                     Log.d("MainActivity", "Error downloading song. ${e.message}")
+                    cleanUpDownload()
                 }
             }
         }
@@ -137,6 +138,7 @@ class HomeViewModel @Inject constructor() : ViewModel() {
                 } catch (e: Exception) {
                     e.printStackTrace()
                     Log.d("MainActivity", "Error downloading song. ${e.message}")
+                    cleanUpDownload()
                 }
             }
         }
