@@ -12,6 +12,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import com.bobbyesp.spotdl_android.ui.common.Routes
 import com.bobbyesp.spotdl_android.ui.common.animatedComposable
@@ -44,10 +45,22 @@ fun PagesRouter(
                     )
                     .align(Alignment.Center),
                 navController = navController,
-                startDestination = Routes.DOWNLOADER){
+                startDestination = Routes.DOWNLOADER
+            ) {
 
-                animatedComposable(Routes.DOWNLOADER){
-                    HomePage(homeViewModel)
+                animatedComposable(Routes.DOWNLOADER) {
+                    HomePage(
+                        homeViewModel,
+                        { navController.navigate(Routes.SETTINGS) },
+                        { navController.navigate(Routes.DOWNLOADS_HISTORY) })
+                }
+
+                animatedComposable(Routes.SETTINGS) {
+                    //TODO
+                }
+
+                animatedComposable(Routes.DOWNLOADS_HISTORY) {
+                    //TODO
                 }
             }
         }

@@ -76,62 +76,71 @@ fun SongCard(
                         contentScale = ContentScale.Crop,
                         isPreview = isPreview
                     )
-                    Column(
-                        modifier = Modifier.padding(6.dp),
-                        verticalArrangement = Arrangement.Center,
-                        horizontalAlignment = Alignment.Start
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center
                     ) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically
+                        Column(
+                            modifier = Modifier.padding(6.dp).weight(1f), //Weight is to make the time not go away from the screen
+                            verticalArrangement = Arrangement.Center,
+                            horizontalAlignment = Alignment.Start
                         ) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.Center
+                            ) {
+                                MarqueeText(
+                                    text = song.name, color = MaterialTheme.colorScheme.onSurface,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis,
+                                    fontSize = 16.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    basicGradientColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.8f),
+                                )
+                                Spacer(modifier = Modifier.width(6.dp))
+                                ExplicitIcon(
+                                    visible = isExplicit
+                                )
+                                Spacer(modifier = Modifier.width(6.dp))
+                                LyricsIcon(
+                                    visible = isLyrics
+                                )
+                            }
+                            Spacer(Modifier.height(8.dp))
                             MarqueeText(
-                                text = song.name, color = MaterialTheme.colorScheme.onSurface,
+                                text = song.artist,
+                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f),
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis,
-                                fontSize = 16.sp,
-                                fontWeight = FontWeight.Bold
-                            )
-                            Spacer(modifier = Modifier.width(6.dp))
-                            ExplicitIcon(
-                                visible = isExplicit
-                            )
-                            Spacer(modifier = Modifier.width(6.dp))
-                            LyricsIcon(
-                                visible = isLyrics
+                                fontSize = 12.sp,
+                                basicGradientColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.8f),
                             )
                         }
-
-                        Spacer(Modifier.height(8.dp))
-                        MarqueeText(
-                            text = song.artist,
-                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f),
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                            fontSize = 12.sp
-                        )
-                    }
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp),
-                        verticalArrangement = Arrangement.Bottom,
-                        horizontalAlignment = Alignment.End
-                    ) {
-                        Surface(modifier = Modifier,
-                            color = MaterialTheme.colorScheme.secondaryContainer,
-                            shape = MaterialTheme.shapes.extraSmall) {
-
-                            Row(modifier = Modifier,
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.Center,
-                            )
-                            {
-                                Text(text = GeneralUtils.convertDuration(song.duration),
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f),
-                                    fontWeight = FontWeight.Bold,
-                                    modifier = Modifier.padding(6.dp, 4.dp, 6.dp, 4.dp )
+                        Column(
+                            modifier = Modifier
+                                .padding(16.dp),
+                            horizontalAlignment = Alignment.End
+                        ) {
+                            Surface(
+                                modifier = Modifier,
+                                color = MaterialTheme.colorScheme.secondaryContainer,
+                                shape = MaterialTheme.shapes.extraSmall
+                            ) {
+                                Row(
+                                    modifier = Modifier,
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.Center,
                                 )
+                                {
+                                    Text(
+                                        text = GeneralUtils.convertDuration(song.duration),
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f),
+                                        fontWeight = FontWeight.Bold,
+                                        modifier = Modifier.padding(6.dp, 4.dp, 6.dp, 4.dp)
+                                    )
+                                }
                             }
                         }
                     }
@@ -170,7 +179,7 @@ fun showSongCard() {
     Surface {
         SongCard(
             Song(
-                "Bad Habits",
+                "Bad Habits with Kygo Lmao look at this",
                 listOf("sangiovanni"),
                 "Ed Sheeran",
                 "url",

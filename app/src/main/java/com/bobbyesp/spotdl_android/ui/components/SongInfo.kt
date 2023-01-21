@@ -30,6 +30,7 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.outlined.ArrowDropDown
 import androidx.compose.material3.Text
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.bobbyesp.library.dto.Song
@@ -41,7 +42,7 @@ fun SongInfo(
     modifier: Modifier = Modifier,
     expanded: Boolean = false,
     songs: List<Song>
-){
+) {
     //mutable state of expanded
     val expandedState = remember { mutableStateOf(expanded) }
 
@@ -71,8 +72,12 @@ fun SongInfo(
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.Bold
                     )
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(text = "Click to expand", style = MaterialTheme.typography.bodyLarge)
+                    Spacer(modifier = Modifier.height(6.dp))
+                    Text(
+                        text = "Click to expand",
+                        style = MaterialTheme.typography.bodyLarge,
+                        modifier = Modifier.alpha(alpha = 0.8f)
+                    )
                     Row(
                         modifier = Modifier.weight(1f),
                         verticalAlignment = Alignment.CenterVertically
@@ -119,13 +124,14 @@ fun SongInfo(
                         items(
                             items = songs,
                         ) { song ->
-                            val propertiesOfDto = song::class.memberProperties
-                            for (property in propertiesOfDto) {
-                                Text(
-                                    text = "${property.name}: ${property.getter.call(song)}",
-                                    modifier = Modifier.padding(4.dp)
-                                )
-
+                            if (songs[0].tracks_count == 1) {
+                                val propertiesOfDto = song::class.memberProperties
+                                for (property in propertiesOfDto) {
+                                    Text(
+                                        text = "${property.name}: ${property.getter.call(song)}",
+                                        modifier = Modifier.padding(4.dp)
+                                    )
+                                }
                             }
                         }
                     }
