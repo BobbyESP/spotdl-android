@@ -17,6 +17,8 @@ import com.bobbyesp.spotdl_android.App.Companion.applicationScope
 import com.bobbyesp.spotdl_android.App.Companion.context
 import com.bobbyesp.spotdl_android.BuildConfig
 import com.bobbyesp.spotdl_android.ui.StateHolder.mutableTaskState
+import com.bobbyesp.spotdl_android.utils.StorageUtil.canAccessDirectory
+import com.bobbyesp.spotdl_android.utils.StorageUtil.canReadAndWriteFile
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.update
@@ -36,6 +38,9 @@ class HomeViewModel @Inject constructor() : ViewModel() {
     fun downloadSong(link: String, progressCallback: ((Float, Long, String) -> Unit)?) {
         currentJob?.cancel()
         currentJob = applicationScope.launch {
+            mutableTaskState.update {
+                it.copy(progress = 0f)
+            }
             //if a looper is not present, the app will crash so we need to create one and if it is present, we need to use it
             val looper = if (Looper.myLooper() == null) {
                 Looper.prepare()
@@ -46,7 +51,7 @@ class HomeViewModel @Inject constructor() : ViewModel() {
             kotlin.runCatching {
                 try {
                     mutableTaskState.update {
-                        it.copy(isDownloading = true)
+                        it.copy(isDownloading = true, progress = 0f)
                     }
                     val spotDLDir = File(
                         Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
@@ -97,12 +102,13 @@ class HomeViewModel @Inject constructor() : ViewModel() {
                     for (s in request.buildCommand()) Log.d(TAG, s)
 
                     Toast.makeText(context, "Downloading...", Toast.LENGTH_SHORT).show()
+
                     SpotDL.getInstance()
                         .execute(request, processId, progressCallback)
+
                     Toast.makeText(context, "Downloaded!", Toast.LENGTH_SHORT).show()
-                    mutableTaskState.update {
-                        it.copy(isDownloading = false)
-                    }
+
+                    cleanUpDownload()
                 } catch (e: Exception) {
                     e.printStackTrace()
                     Log.d("MainActivity", "Error downloading song. ${e.message}")
@@ -142,27 +148,10 @@ class HomeViewModel @Inject constructor() : ViewModel() {
         context.startActivity(intent)
     }
 
-
-    //Give permissions to a directory with chmod 777
-    private fun givePermsWithChmod(path: String, perms: String = "777") {
-        val command = "chmod -R $perms $path"
-        val process = Runtime.getRuntime().exec(command)
-        process.waitFor()
-
-    }
-
-    //Check if the app can access to a directory
-    fun canAccessDirectory(path: String): Boolean {
-        Log.d("Can Access Directory", "Checking if the app can access to $path")
-        val file = File(path)
-        return file.exists() && file.canRead() && file.canWrite() && file.isDirectory
-    }
-
-    //can read and write file
-    fun canReadAndWriteFile(path: String): Boolean {
-        Log.d("Can Read and Write File", "Checking if the app can read and write to $path")
-        val file = File(path)
-        return file.exists() && file.canRead() && file.canWrite() && file.isFile
+    fun cleanUpDownload(){
+        mutableTaskState.update {
+            it.copy(progress = 0f, isDownloading = false, progressText = "")
+        }
     }
 
 }

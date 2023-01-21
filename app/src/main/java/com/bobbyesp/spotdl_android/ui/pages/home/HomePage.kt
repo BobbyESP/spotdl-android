@@ -18,8 +18,10 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.LinearProgressIndicator
-import androidx.compose.material.OutlinedTextField
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material.TextFieldDefaults
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
@@ -29,19 +31,22 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.compose.ui.text.input.*
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.bobbyesp.spotdl_android.ui.StateHolder
+import com.bobbyesp.spotdl_android.ui.components.SongCard
 import kotlinx.coroutines.flow.update
 import kotlin.reflect.full.memberProperties
+import com.bobbyesp.spotdl_android.R
+import com.bobbyesp.spotdl_android.ui.components.SongInfo
 
 @Composable
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalLifecycleComposeApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 fun HomePage(
     homeViewModel: HomeViewModel = hiltViewModel()
 ) {
@@ -56,8 +61,7 @@ fun HomePage(
             .fillMaxSize()
             .verticalScroll(rememberScrollState()),
         color = MaterialTheme.colorScheme.background,
-
-        ) {
+    ) {
         Box(modifier = Modifier.fillMaxSize()) {
             Column(
                 modifier = Modifier
@@ -67,68 +71,40 @@ fun HomePage(
             ) {
                 AnimatedVisibility(visible = taskState.songInfo.isNotEmpty()) {
                     if (taskState.songInfo.isNotEmpty()) {
-                        Surface( modifier = Modifier
-                            .padding(16.dp)
-                            .clip(RoundedCornerShape(8.dp)),
-                            shadowElevation = 16.dp,onClick = { homeViewModel.openUrl(taskState.songInfo[0].url) }) {
-                            Column(
-                                modifier = Modifier
-                                    .background(MaterialTheme.colorScheme.surfaceVariant),
-                                verticalArrangement = Arrangement.Center,
-                                horizontalAlignment = Alignment.CenterHorizontally
-                            ) {
-                                AsyncImage(
-                                    model = taskState.songInfo[0].cover_url,
-                                    contentDescription = "Song cover",
-                                    modifier = Modifier.size(192.dp)
-                                )
+                        Column() {
+                            if (taskState.songInfo.size > 1) {
                                 Text(
-                                    text = taskState.songInfo[0].name,
-                                    style = MaterialTheme.typography.headlineMedium,
+                                    text = taskState.songInfo.size.toString() + " songs found. Showing the first one.",
+                                    style = MaterialTheme.typography.titleMedium,
                                     fontWeight = FontWeight.Bold,
-                                    modifier = Modifier.padding(8.dp)
-                                )
-                                Text(
-                                    text = taskState.songInfo[0].artist,
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    fontWeight = FontWeight.Bold,
-                                    modifier = Modifier
-                                        .alpha(0.6f)
-                                        .padding(bottom = 4.dp)
+                                    modifier = Modifier.padding(16.dp)
                                 )
                             }
+
+                            SongCard(
+                                song = taskState.songInfo[0],
+                                progress = taskState.progress,
+                                modifier = Modifier.padding(16.dp),
+                                isLyrics = taskState.songInfo[0].lyrics?.isNotEmpty() ?: false,
+                                isExplicit = taskState.songInfo[0].explicit,
+                                onClick = { homeViewModel.openUrl(taskState.songInfo[0].url) }
+                            )
                         }
+
                     }
                 }
                 OutlinedTextField(
                     value = text,
+                    isError = false,
                     onValueChange = { setText(it) },
-                    label = { Text("Enter a Spotify URL") },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
-                    singleLine = true,
+                    label = { Text(stringResource(R.string.enter_url)) },
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 8.dp, start = 16.dp, end = 16.dp, bottom = 8.dp),
-                    colors = TextFieldDefaults.outlinedTextFieldColors(
-                        focusedBorderColor = MaterialTheme.colorScheme.primary,
-                        unfocusedBorderColor = MaterialTheme.colorScheme.primary,
-                        focusedLabelColor = MaterialTheme.colorScheme.primary,
-                        unfocusedLabelColor = MaterialTheme.colorScheme.primary,
-                        cursorColor = MaterialTheme.colorScheme.primary,
-                        leadingIconColor = MaterialTheme.colorScheme.primary,
-                        trailingIconColor = MaterialTheme.colorScheme.primary,
-                        errorLabelColor = MaterialTheme.colorScheme.primary,
-                        errorBorderColor = MaterialTheme.colorScheme.primary,
-                        disabledBorderColor = MaterialTheme.colorScheme.primary,
-                        disabledLabelColor = MaterialTheme.colorScheme.primary,
-                        disabledLeadingIconColor = MaterialTheme.colorScheme.primary,
-                        disabledTrailingIconColor = MaterialTheme.colorScheme.primary,
-                        backgroundColor = MaterialTheme.colorScheme.background,
-                        textColor = MaterialTheme.colorScheme.onBackground,
-                        placeholderColor = MaterialTheme.colorScheme.onBackground,
-                        errorCursorColor = MaterialTheme.colorScheme.primary,
-                        errorTrailingIconColor = MaterialTheme.colorScheme.primary,
-                    )
+                        .padding(16.dp)
+                        .fillMaxWidth(),
+                    textStyle = MaterialTheme.typography.bodyLarge,
+                    trailingIcon = {
+                        if (text.isNotEmpty()) ClearButton { setText("") }
+                    }
                 )
                 AnimatedVisibility(visible = taskState.isDownloading) {
                     //Linear progress indicator with the progress from the task state
@@ -137,7 +113,6 @@ fun HomePage(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(start = 16.dp, end = 16.dp),
-                        //progress = taskState.progress, //Have to fix StreamProcessExtractor
                         color = MaterialTheme.colorScheme.primary
                     )
                 }
@@ -148,7 +123,7 @@ fun HomePage(
                     homeViewModel.downloadSong(text) { progress, _, line ->
                         //Divide the progress by 100 to get a value between 0 and 1
                         StateHolder.mutableTaskState.update {
-                            it.copy(progress = progress , progressText = line)
+                            it.copy(progress = progress, progressText = line)
                         }
                     }
                 }) {
@@ -157,27 +132,26 @@ fun HomePage(
                 Button(onClick = { homeViewModel.requestSongInfo(text) }) {
                     Text(text = "Request Song Info")
                 }
-                if (taskState.songInfo.isNotEmpty()) {
+                AnimatedVisibility(visible = taskState.songInfo.isNotEmpty()) {
                     Column(
                         modifier = Modifier
                             .padding(16.dp)
                     ) {
-                        taskState.songInfo.forEach {
-                            val propertiesOfDto = it::class.memberProperties
-                            for (property in propertiesOfDto) {
-                                Text(
-                                    text = "${property.name}: ${property.getter.call(it)}",
-                                    modifier = Modifier.padding(4.dp)
-                                )
-
-                            }
-                        }
+                        SongInfo(songs = taskState.songInfo)
                     }
-
                 }
-
-
             }
         }
+    }
+}
+
+@Composable
+fun ClearButton(function: () -> Unit) {
+    IconButton(onClick = function) {
+        Icon(
+            imageVector = Icons.Default.Clear,
+            contentDescription = "Clear",
+            tint = MaterialTheme.colorScheme.onSurface
+        )
     }
 }

@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">spotdl-android</string>
+    <string name="lyrics">Lyrics</string>
+    <string name="enter_url">Enter a Spotify URL\n</string>
 </resources>
