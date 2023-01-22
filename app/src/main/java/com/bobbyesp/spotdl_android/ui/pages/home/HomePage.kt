@@ -1,8 +1,12 @@
 package com.bobbyesp.spotdl_android.ui.pages.home
 
 import android.content.ClipboardManager
+import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -15,10 +19,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.LinearProgressIndicator
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.outlined.ContentPaste
@@ -31,7 +33,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -39,19 +41,18 @@ import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.compose.ui.text.input.*
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.bobbyesp.spotdl_android.R
 import com.bobbyesp.spotdl_android.ui.StateHolder
 import com.bobbyesp.spotdl_android.ui.components.SongCard
-import kotlinx.coroutines.flow.update
-import com.bobbyesp.spotdl_android.R
 import com.bobbyesp.spotdl_android.ui.components.SongInfo
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.update
 
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
@@ -79,12 +80,28 @@ fun HomePage(
     val clipboardManager = LocalClipboardManager.current
     val (text, setText) = remember { mutableStateOf("") }
 
+    //get 0 when the scroll is at the top and 1 when it's at the bottom
+    val scrollState = rememberScrollState()
+
+    val scrollPosition = remember { mutableStateOf(0f) }
+
+    LaunchedEffect(scrollState.isScrollInProgress) {
+        snapshotFlow { scrollState.value }
+            .collect { scrollPosition.value = it.toFloat() }
+    }
+
+    LaunchedEffect(taskState.isDownloading) {
+        Log.i("Scroll", scrollPosition.value.toString())
+    }
+
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background),
     ) {
-        Scaffold(modifier = Modifier.fillMaxSize(), topBar = {
+        Scaffold(modifier = Modifier
+            .fillMaxSize()
+            .scrollable(scrollState, Orientation.Vertical), topBar = {
             TopAppBar(title = {}, modifier = Modifier.padding(horizontal = 8.dp), navigationIcon = {
                 IconButton(onClick = { navigateToSettings() }) {
                     Icon(
@@ -101,7 +118,7 @@ fun HomePage(
                 }
             })
         }, floatingActionButton = {
-            AnimatedVisibility(visible = true) {
+            AnimatedVisibility(visible = true /*scrollPosition.value < 0.5f*/) {
                 FABs(
                     modifier = with(receiver = Modifier.padding()) {
                         this.imePadding()
@@ -139,6 +156,7 @@ fun HomePage(
                             style = MaterialTheme.typography.headlineMedium,
                             modifier = Modifier.padding(8.dp)
                         )
+                        Text(text = stringResource(id = R.string.app_description), style = MaterialTheme.typography.labelLarge, modifier = Modifier.alpha(0.8f))
                         OutlinedTextField(
                             value = text,
                             isError = false,
@@ -212,7 +230,9 @@ fun HomePage(
                             style = MaterialTheme.typography.bodyMedium,
                             fontStyle = FontStyle.Italic
                         )
-                        Button(onClick = { homeViewModel.openDownloadsFolder() }, modifier = Modifier.fillMaxWidth().padding(start = 32.dp, end = 32.dp)) {
+                        Button(onClick = { homeViewModel.openDownloadsFolder() }, modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(start = 32.dp, end = 32.dp)) {
                             Text(text = "Open Downloads Folder")
                         }
                     }

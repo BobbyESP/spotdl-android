@@ -179,9 +179,9 @@ fun showSongCard() {
     Surface {
         SongCard(
             Song(
-                "Bad Habits with Kygo Lmao look at this",
+                "Save Your Tears",
                 listOf("sangiovanni"),
-                "Ed Sheeran",
+                "The Weeknd",
                 "url",
                 "",
                 emptyList(),
@@ -193,7 +193,7 @@ fun showSongCard() {
                 0,
                 0,
                 "",
-                false,
+                true,
                 "Quevedo",
                 "url",
                 "url",
