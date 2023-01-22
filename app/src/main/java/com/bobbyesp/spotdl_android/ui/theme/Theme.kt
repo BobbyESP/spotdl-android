@@ -1,7 +1,10 @@
 package com.bobbyesp.spotdl_android.ui.theme
 
 import android.app.Activity
+import android.content.Context
+import android.content.ContextWrapper
 import android.os.Build
+import android.view.Window
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
@@ -10,10 +13,12 @@ import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.ViewCompat
+import com.google.android.material.color.MaterialColors
 
 private val DarkColorScheme = darkColorScheme(
     primary = Purple80,
@@ -36,6 +41,26 @@ private val LightColorScheme = lightColorScheme(
     onSurface = Color(0xFF1C1B1F),
     */
 )
+
+fun Color.applyOpacity(enabled: Boolean): Color {
+    return if (enabled) this else this.copy(alpha = 0.62f)
+}
+
+@Composable
+fun Color.harmonizeWith(other: Color) =
+    Color(MaterialColors.harmonize(this.toArgb(), other.toArgb()))
+
+@Composable
+fun Color.harmonizeWithPrimary(): Color =
+    this.harmonizeWith(other = MaterialTheme.colorScheme.primary)
+
+
+private tailrec fun Context.findWindow(): Window? =
+    when (this) {
+        is Activity -> window
+        is ContextWrapper -> baseContext.findWindow()
+        else -> null
+    }
 
 @Composable
 fun SpotdlandroidTheme(

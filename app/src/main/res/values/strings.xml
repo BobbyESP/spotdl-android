@@ -8,5 +8,14 @@
     <string name="downloads_history">Downloads history</string>
     <string name="search_info">Request Song Info</string>
     <string name="go_back">Go back</string>
-    <string name="app_description">The best Android song dowloader powered by spotDL</string>
+    <string name="app_description">The best Android song downloader powered by spotDL</string>
+    <string name="dismiss">Dismiss</string>
+    <string name="confirm">Confirm</string>
+    <string name="checked">Checked</string>
+    <string name="remove">Remove</string>
+    <string name="add">Add</string>
+    <string name="clear">Clear</string>
+    <string name="open_settings">Open Settings</string>
+    <string name="edit">Edit</string>
+    <string name="remove_template">Remove template</string>
 </resources>

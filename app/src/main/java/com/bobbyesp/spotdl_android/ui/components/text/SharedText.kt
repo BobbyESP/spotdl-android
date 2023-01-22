@@ -28,7 +28,7 @@ import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
 
 @Composable
-fun MediumText (
+fun MediumText(
     text: String,
     modifier: Modifier = Modifier,
     color: Color = Color.Unspecified,
@@ -38,26 +38,54 @@ fun MediumText (
     fontSize: TextUnit = 16.sp,
     textAlign: TextAlign? = null,
 ) {
-    Text(text, textAlign = textAlign, color = color, fontSize = fontSize, fontWeight = fontWeight, maxLines = maxLines, lineHeight = lineHeight, overflow = TextOverflow.Ellipsis, modifier = modifier)
+    Text(
+        text,
+        textAlign = textAlign,
+        color = color,
+        fontSize = fontSize,
+        fontWeight = fontWeight,
+        maxLines = maxLines,
+        lineHeight = lineHeight,
+        overflow = TextOverflow.Ellipsis,
+        modifier = modifier
+    )
 }
 
 @Composable
-fun Subtext (
+fun Subtext(
     text: String,
     modifier: Modifier = Modifier,
     fontSize: TextUnit = 12.sp,
     maxLines: Int = 2,
     textAlign: TextAlign? = null,
 ) {
-    Text(text, textAlign = textAlign, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f), fontSize = fontSize, lineHeight = 18.sp, maxLines = maxLines, overflow = TextOverflow.Ellipsis, modifier = modifier)
+    Text(
+        text,
+        textAlign = textAlign,
+        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
+        fontSize = fontSize,
+        lineHeight = 18.sp,
+        maxLines = maxLines,
+        overflow = TextOverflow.Ellipsis,
+        modifier = modifier
+    )
 }
 
 @Composable
-fun SubtextOverline (
+fun SubtextOverline(
     text: String,
     modifier: Modifier = Modifier
 ) {
-    Text(text, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f), letterSpacing = 2.sp, fontSize = 12.sp, lineHeight = 18.sp, maxLines = 2, overflow = TextOverflow.Ellipsis, modifier = modifier)
+    Text(
+        text,
+        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
+        letterSpacing = 2.sp,
+        fontSize = 12.sp,
+        lineHeight = 18.sp,
+        maxLines = 2,
+        overflow = TextOverflow.Ellipsis,
+        modifier = modifier
+    )
 }
 
 @Composable
