@@ -18,6 +18,9 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.ViewCompat
+import androidx.core.view.WindowCompat
+import com.google.accompanist.systemuicontroller.rememberSystemUiController
+import com.google.android.material.color.DynamicColors
 import com.google.android.material.color.MaterialColors
 
 private val DarkColorScheme = darkColorScheme(
@@ -65,30 +68,39 @@ private tailrec fun Context.findWindow(): Window? =
 @Composable
 fun SpotdlandroidTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    // Dynamic color is available on Android 12+
-    dynamicColor: Boolean = true,
+    isHighContrastModeEnabled: Boolean = false,
     content: @Composable () -> Unit
 ) {
-    //make the status bar transparent
-    val context = LocalContext.current
-
     val colorScheme = when {
-        dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
+        DynamicColors.isDynamicColorAvailable() -> {
             val context = LocalContext.current
-            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
+            if (darkTheme) {
+                dynamicDarkColorScheme(context)
+            } else {
+                dynamicLightColorScheme(context)
+            }
         }
-        darkTheme -> DarkColorScheme
-        else -> LightColorScheme
+
+        else -> {
+            if (darkTheme) {
+                DarkColorScheme
+            } else {
+                LightColorScheme
+            }
+        }
+    }.run {
+        if (isHighContrastModeEnabled && darkTheme) copy(
+            surface = Color.Black,
+            background = Color.Black,
+        )
+        else this
     }
+    val window = LocalView.current.context.findWindow()
     val view = LocalView.current
-    if (!view.isInEditMode) {
-        SideEffect {
-            (view.context as Activity).window.statusBarColor = colorScheme.background.toArgb()
-            ViewCompat.getWindowInsetsController(view)?.isAppearanceLightStatusBars = darkTheme
-            //navigation bar color
-            (view.context as Activity).window.navigationBarColor = colorScheme.background.toArgb()
-        }
-    }
+
+    window?.let { WindowCompat.getInsetsController(it, view).isAppearanceLightStatusBars = darkTheme }
+
+    rememberSystemUiController(window).setSystemBarsColor(colorScheme.background, !darkTheme)
 
     MaterialTheme(
         colorScheme = colorScheme,

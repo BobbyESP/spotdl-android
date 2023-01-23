@@ -408,7 +408,7 @@ open class SpotDL {
 
     open fun version(appContext: Context): String? {
        // return SpotDLUpdater.getInstance().version(appContext)
-        return null
+        return "Hand-imported v4.0.6"
     }
 
     @Throws(SpotDLException::class)

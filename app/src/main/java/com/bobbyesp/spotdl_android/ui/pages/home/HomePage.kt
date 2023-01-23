@@ -63,22 +63,9 @@ fun HomePage(
 ) {
     val taskState = StateHolder.taskState.collectAsStateWithLifecycle().value
 
-    //get the progressText from the taskState but it can be updated in real time
-    val outputText = remember { mutableStateOf(taskState.progressText) }
-    val states = listOf("Downloading", "Converting", "Embedding Metadata")
-
-    val downloadState = remember {
-        mutableStateOf(
-            if (states.any { taskState.progressText.contains(it) }) {
-                states.first { taskState.progressText.contains(it) }
-            } else {
-                "Working..."
-            }
-        )
-    }
-
     val clipboardManager = LocalClipboardManager.current
     val (text, setText) = remember { mutableStateOf("") }
+    val (isLyricsWanted, setLyricsWanted) = remember { mutableStateOf(false) }
 
     //get 0 when the scroll is at the top and 1 when it's at the bottom
     val scrollState = rememberScrollState()
@@ -102,21 +89,25 @@ fun HomePage(
         Scaffold(modifier = Modifier
             .fillMaxSize()
             .scrollable(scrollState, Orientation.Vertical), topBar = {
-            TopAppBar(title = {}, modifier = Modifier.padding(horizontal = 8.dp), navigationIcon = {
-                IconButton(onClick = { navigateToSettings() }) {
-                    Icon(
-                        imageVector = Icons.Outlined.Settings,
-                        contentDescription = stringResource(id = R.string.settings)
-                    )
-                }
-            }, actions = {
-                IconButton(onClick = { navigateToDownloads() }) {
-                    Icon(
-                        imageVector = Icons.Outlined.Subscriptions,
-                        contentDescription = stringResource(id = R.string.downloads_history)
-                    )
-                }
-            })
+            TopAppBar(
+                title = {},
+                modifier = Modifier.padding(horizontal = 8.dp),
+                navigationIcon = {
+                    IconButton(onClick = { navigateToSettings() }) {
+                        Icon(
+                            imageVector = Icons.Outlined.Settings,
+                            contentDescription = stringResource(id = R.string.settings)
+                        )
+                    }
+                },
+                actions = {
+                    IconButton(onClick = { navigateToDownloads() }) {
+                        Icon(
+                            imageVector = Icons.Outlined.Subscriptions,
+                            contentDescription = stringResource(id = R.string.downloads_history)
+                        )
+                    }
+                })
         }, floatingActionButton = {
             AnimatedVisibility(visible = true /*scrollPosition.value < 0.5f*/) {
                 FABs(
@@ -143,7 +134,7 @@ fun HomePage(
                     .padding(it),
                 color = MaterialTheme.colorScheme.background,
             ) {
-                Box(modifier = Modifier.fillMaxSize()) {
+                Box(modifier = Modifier.fillMaxSize().padding(start = 16.dp, end = 16.dp)) {
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -156,14 +147,18 @@ fun HomePage(
                             style = MaterialTheme.typography.headlineMedium,
                             modifier = Modifier.padding(8.dp)
                         )
-                        Text(text = stringResource(id = R.string.app_description), style = MaterialTheme.typography.labelLarge, modifier = Modifier.alpha(0.8f))
+                        Text(
+                            text = stringResource(id = R.string.app_description),
+                            style = MaterialTheme.typography.labelLarge,
+                            modifier = Modifier.alpha(0.8f)
+                        )
                         OutlinedTextField(
                             value = text,
                             isError = false,
                             onValueChange = { setText(it) },
                             label = { Text(stringResource(R.string.enter_url)) },
                             modifier = Modifier
-                                .padding(16.dp)
+                                .padding(top = 12.dp, bottom = 8.dp)
                                 .fillMaxWidth(),
                             textStyle = MaterialTheme.typography.bodyLarge,
                             trailingIcon = {
@@ -179,11 +174,11 @@ fun HomePage(
                                 LinearProgressIndicator(
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .padding(start = 16.dp, end = 16.dp),
+                                        .padding(),
                                     color = MaterialTheme.colorScheme.primary
                                 )
                                 Text(
-                                    text = downloadState.value,
+                                    text = taskState.progressText,
                                     style = MaterialTheme.typography.bodyLarge,
                                     modifier = Modifier
                                         .padding(4.dp)
@@ -193,19 +188,19 @@ fun HomePage(
                         }
                         AnimatedVisibility(visible = taskState.songInfo.isNotEmpty()) {
                             if (taskState.songInfo.isNotEmpty()) {
-                                Column() {
+                                Column {
                                     if (taskState.songInfo.size > 1) {
                                         Text(
                                             text = taskState.songInfo.size.toString() + " songs found. Showing the first one.",
                                             style = MaterialTheme.typography.titleMedium,
                                             fontWeight = FontWeight.Bold,
-                                            modifier = Modifier.padding(16.dp)
+                                            modifier = Modifier.padding(top = 8.dp , bottom = 8.dp)
                                         )
                                     }
                                     SongCard(
                                         song = taskState.songInfo[0],
                                         progress = taskState.progress,
-                                        modifier = Modifier.padding(16.dp),
+                                        modifier = Modifier.padding(top= 16.dp, bottom = 16.dp),
                                         isLyrics = taskState.songInfo[0].lyrics?.isNotEmpty()
                                             ?: false,
                                         isExplicit = taskState.songInfo[0].explicit,
@@ -218,7 +213,7 @@ fun HomePage(
                         AnimatedVisibility(visible = taskState.songInfo.isNotEmpty()) {
                             Column(
                                 modifier = Modifier
-                                    .padding(16.dp)
+                                    .padding(top = 8.dp, bottom = 8.dp)
                             ) {
                                 SongInfo(songs = taskState.songInfo)
                                 Spacer(modifier = Modifier.height(8.dp))
@@ -230,9 +225,11 @@ fun HomePage(
                             style = MaterialTheme.typography.bodyMedium,
                             fontStyle = FontStyle.Italic
                         )
-                        Button(onClick = { homeViewModel.openDownloadsFolder() }, modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(start = 32.dp, end = 32.dp)) {
+                        Button(
+                            onClick = { homeViewModel.openDownloadsFolder() }, modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(start = 16.dp, end = 16.dp)
+                        ) {
                             Text(text = "Open Downloads Folder")
                         }
                     }

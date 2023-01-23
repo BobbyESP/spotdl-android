@@ -9,7 +9,6 @@ import android.widget.Toast
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.core.content.FileProvider
 import androidx.lifecycle.ViewModel
-import com.bobbyesp.library.DownloadProgressCallback
 import com.bobbyesp.library.SpotDL
 import com.bobbyesp.library.SpotDLRequest
 import com.bobbyesp.library.dto.Song
@@ -64,7 +63,7 @@ class HomeViewModel @Inject constructor() : ViewModel() {
                         spotDLDir.mkdir()
                     }
                     val fullPath = context.filesDir.absolutePath + "/spotdl/.spotdl"
-                    val pathUri: Uri = FileProvider.getUriForFile(
+                    val pathToFfmpeg: Uri = FileProvider.getUriForFile(
                         context, BuildConfig.APPLICATION_ID + ".provider", File(
                             "$fullPath/ffmpeg"
                         )
@@ -75,7 +74,7 @@ class HomeViewModel @Inject constructor() : ViewModel() {
                     )
                     Log.i(TAG, canAccessDirectory(fullPath).toString())
                     Log.i(TAG, canReadAndWriteFile("$fullPath/ffmpeg").toString())
-                    Log.i(TAG, pathUri.toString())
+                    Log.i(TAG, pathToFfmpeg.toString())
                     Log.d(
                         TAG,
                         "--------------------------------------------------------------------"
@@ -87,6 +86,7 @@ class HomeViewModel @Inject constructor() : ViewModel() {
                         "spotdl"
                     )
                     Toast.makeText(context, "Getting song info...", Toast.LENGTH_SHORT).show()
+
                     //Request song info
                     val songInfo = SpotDL.getInstance().getSongInfo(link)
 
@@ -96,7 +96,7 @@ class HomeViewModel @Inject constructor() : ViewModel() {
 
                     val request = SpotDLRequest()
                     request.addOption("download", link)
-                    //request.addOption("--log-level", "DEBUG")
+                    request.addOption("--log-level", "DEBUG")
                     //request.addOption("--simple-tui")
                     request.addOption("--output", downloadDir.absolutePath)
                     val processId = UUID.randomUUID().toString()
@@ -137,7 +137,7 @@ class HomeViewModel @Inject constructor() : ViewModel() {
                     }
                 } catch (e: Exception) {
                     e.printStackTrace()
-                    Log.d("MainActivity", "Error downloading song. ${e.message}")
+                    Log.d("MainActivity", "Error requesting song info. ${e.message}")
                     cleanUpDownload()
                 }
             }
@@ -153,7 +153,7 @@ class HomeViewModel @Inject constructor() : ViewModel() {
         context.startActivity(intent)
     }
 
-    fun cleanUpDownload(){
+    private fun cleanUpDownload(){
         mutableTaskState.update {
             it.copy(progress = 0f, isDownloading = false, progressText = "")
         }
@@ -176,13 +176,5 @@ class HomeViewModel @Inject constructor() : ViewModel() {
         }else{
             Toast.makeText(context, "No file manager found", Toast.LENGTH_SHORT).show()
         }
-
-    }
-
-}
-
-class Callback : DownloadProgressCallback {
-    override fun onProgressUpdate(progress: Float, eta: Long, line: String) {
-        Log.d("MainActivity", "Progress: $progress, ETA: $eta, Line: $line")
     }
 }

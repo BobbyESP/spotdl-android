@@ -177,7 +177,7 @@ fun SongInfo(
 
                                 Text(
                                     text = "Playlist with ${songs.size} songs",
-                                    modifier = Modifier.padding(4.dp),
+                                    modifier = Modifier.padding(6.dp),
                                     fontWeight = FontWeight.Bold,
                                     style = MaterialTheme.typography.titleLarge
                                 )

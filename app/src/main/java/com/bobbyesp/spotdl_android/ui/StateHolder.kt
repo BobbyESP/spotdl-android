@@ -13,7 +13,7 @@ object StateHolder {
     data class DownloadTaskItem(
         val title: String = "",
         val progress: Float = 0f,
-        val progressText: String = "",
+        val progressText: String = "Working...",
         val songInfo: List<Song> = emptyList(),
         val isDownloading: Boolean = false,
     )

@@ -18,4 +18,5 @@
     <string name="open_settings">Open Settings</string>
     <string name="edit">Edit</string>
     <string name="remove_template">Remove template</string>
+    <string name="download_lyrics">Download Lyrics</string>
 </resources>
