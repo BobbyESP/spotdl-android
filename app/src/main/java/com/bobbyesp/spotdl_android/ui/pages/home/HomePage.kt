@@ -53,6 +53,10 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.update
+//IMPORTANT NOTE
+//https://stackoverflow.com/questions/64951605/var-value-by-remember-mutablestateofdefault-produce-error-why
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
@@ -65,7 +69,6 @@ fun HomePage(
 
     val clipboardManager = LocalClipboardManager.current
     val (text, setText) = remember { mutableStateOf("") }
-    val (isLyricsWanted, setLyricsWanted) = remember { mutableStateOf(false) }
 
     //get 0 when the scroll is at the top and 1 when it's at the bottom
     val scrollState = rememberScrollState()
@@ -317,6 +320,31 @@ fun FABs(
             }, shape = Shapes().small
         )
     }
+}
+
+@Composable
+fun SettingsCheckbox(
+    isCheckboxClicked :() -> Boolean,
+    onCheckboxClick: () -> Unit,
+    text: String,
+){
+    Row(
+        modifier = Modifier,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Checkbox(
+            checked = isCheckboxClicked(),
+            onCheckedChange = { onCheckboxClick() },
+            modifier = Modifier
+                .padding(end = 4.dp)
+        )
+        Text(
+            text = text,
+            modifier = Modifier
+                .padding(start = 4.dp)
+        )
+    }
+
 }
 
 //get the text from the clipboard

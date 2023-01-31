@@ -36,6 +36,8 @@ data class SongList(
     val url: String,
     val urls: List<String>,
     val songs: List<Song>,
+    val genres: List<String>,
+    val albums: List<String>,
     val artist: ArtistSongInfo = ArtistSongInfo(emptyMap(), "", "", "", "", ""),
     val description: String = "",
     val author_url: String = "",

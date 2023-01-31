@@ -17,8 +17,8 @@ object PreferencesUtil {
 
     fun containsKey(key: String) = kv.containsKey(key)
 
-
-    const val VIDEO_DIRECTORY = "download_dir"
     const val AUDIO_DIRECTORY = "audio_dir"
+    const val LYRICS = "lyrics"
+    const val ORIGINAL_AUDIO = "original_audio"
 
 }
