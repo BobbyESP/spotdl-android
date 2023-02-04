@@ -56,7 +56,7 @@ open class SpotDL {
     private var ENV_LD_LIBRARY_PATH: String? = null
     private var ENV_SSL_CERT_FILE: String? = null
     private var ENV_PYTHONHOME: String? = null
-    private var HOME: String? = null
+    var HOME: String? = null
     private var LDFLAGS: String? = null
 
     private val isDebug = BuildConfig.DEBUG

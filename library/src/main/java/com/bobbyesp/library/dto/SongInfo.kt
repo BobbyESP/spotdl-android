@@ -38,7 +38,7 @@ data class SongList(
     val songs: List<Song> = listOf(),
     val genres: List<String>? = null,
     val albums: List<String>? = null,
-    val artist: ArtistSongInfo = ArtistSongInfo(emptyMap(), "", "", "", "", ""),
+    val artist: ArtistSongInfo = ArtistSongInfo(),
     val description: String = "",
     val author_url: String = "",
     val author_name: String = "",
