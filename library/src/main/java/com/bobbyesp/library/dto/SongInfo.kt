@@ -27,7 +27,8 @@ data class Song(
     val download_url: String? = null,
     val song_list: SongList? = null,
     val list_position: Int? = null,
-    val lyrics: String? = null
+    val lyrics: String? = null,
+    val album_id: String? = null,
 )
 
 @Serializable
