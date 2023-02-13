@@ -239,7 +239,7 @@ fun SongInfo(
                                     type = "Song cover url",
                                     value = song.cover_url
                                 )
-                                MetadataInfo(type = "Song ISRC", value = song.isrc)
+                                MetadataInfo(type = "Song ISRC", value = song.isrc ?: "Unknown")
                                 MetadataInfo(
                                     type = "Song copyright text",
                                     value = song.copyright_text
@@ -344,7 +344,7 @@ fun SongInfo(
                                             type = "Song cover url",
                                             value = song.cover_url
                                         )
-                                        MetadataInfo(type = "Song ISRC", value = song.isrc)
+                                        MetadataInfo(type = "Song ISRC", value = song.isrc ?: "Unknown")
                                         MetadataInfo(
                                             type = "Song copyright text",
                                             value = song.copyright_text

@@ -40,6 +40,7 @@ import com.bobbyesp.spotdl_android.ui.components.songs.ExplicitIcon
 import com.bobbyesp.spotdl_android.ui.components.songs.LyricsIcon
 import com.bobbyesp.spotdl_android.ui.components.text.MarqueeText
 import com.bobbyesp.spotdl_android.utils.GeneralUtils
+import com.bobbyesp.spotdl_android.utils.GeneralUtils.convertDuration
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -134,7 +135,7 @@ fun SongCard(
                                 )
                                 {
                                     Text(
-                                        text = GeneralUtils.convertDuration(song.duration),
+                                        text = convertDuration(song.duration),
                                         style = MaterialTheme.typography.bodySmall,
                                         color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f),
                                         fontWeight = FontWeight.Bold,
@@ -187,7 +188,7 @@ fun showSongCard() {
                 emptyList(),
                 0,
                 1,
-                179.8,
+                179.0,
                 2022,
                 "",
                 0,
@@ -226,7 +227,7 @@ fun showSongCardNight() {
                 emptyList(),
                 0,
                 1,
-                17.8,
+                170.0,
                 2022,
                 "",
                 0,
