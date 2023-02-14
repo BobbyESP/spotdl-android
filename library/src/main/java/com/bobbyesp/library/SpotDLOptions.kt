@@ -1,7 +1,5 @@
 package com.bobbyesp.library
 
-import androidx.annotation.NonNull
-
 open class SpotDLOptions {
 
     private val options: MutableMap<String, MutableList<String>> = LinkedHashMap()

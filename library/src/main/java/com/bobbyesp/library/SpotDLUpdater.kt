@@ -1,11 +1,5 @@
 package com.bobbyesp.library
 
-import android.content.Context
-import com.bobbyesp.commonutilities.SharedPrefsHelper
-import org.apache.commons.io.FileUtils
-import java.io.File
-import java.io.IOException
-import java.net.URL
 
 open class SpotDLUpdater {
 
