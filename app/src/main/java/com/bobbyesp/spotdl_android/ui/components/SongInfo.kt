@@ -232,7 +232,7 @@ fun SongInfo(
                                 )
                                 MetadataInfo(
                                     type = "Song publisher",
-                                    value = song.publisher
+                                    value = song.publisher?: "Unknown"
                                 )
                                 MetadataInfo(type = "Song url", value = song.url)
                                 MetadataInfo(
@@ -242,7 +242,7 @@ fun SongInfo(
                                 MetadataInfo(type = "Song ISRC", value = song.isrc ?: "Unknown")
                                 MetadataInfo(
                                     type = "Song copyright text",
-                                    value = song.copyright_text
+                                    value = song.copyright_text ?: "Unknown"
                                 )
                             } else {
                                 ElevatedCard(
@@ -337,7 +337,7 @@ fun SongInfo(
                                         )
                                         MetadataInfo(
                                             type = "Song publisher",
-                                            value = song.publisher
+                                            value = song.publisher ?: "Unknown"
                                         )
                                         MetadataInfo(type = "Song url", value = song.url)
                                         MetadataInfo(
@@ -347,7 +347,7 @@ fun SongInfo(
                                         MetadataInfo(type = "Song ISRC", value = song.isrc ?: "Unknown")
                                         MetadataInfo(
                                             type = "Song copyright text",
-                                            value = song.copyright_text
+                                            value = song.copyright_text ?: "Unknown"
                                         )
                                     }
                                 }
