@@ -377,6 +377,7 @@ open class SpotDL {
             //get the song info from the file with the songId and deserialize it
             val file = File("$HOME/.spotdl/meta_info/$songId.spotdl")
             val json = file.readText()
+            //Return the song info as a data class object
             songInfo = jsonUnknownAllower.decodeFromString(ListSerializer(Song.serializer()), json)
         }catch (e: Exception){
             throw SpotDLException("Error parsing song info", e)
