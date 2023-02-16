@@ -60,6 +60,11 @@ open class SpotDL {
 
     private val id2Process = Collections.synchronizedMap(HashMap<String, Process>())
 
+    //ignore jsonUnknownKeys
+    private val jsonUnknownAllower = Json {
+        ignoreUnknownKeys = true
+    }
+
     //create a function that can be called out of this class to get the instance
     companion object {
         private val spotDl: SpotDL = SpotDL()
@@ -372,7 +377,7 @@ open class SpotDL {
             //get the song info from the file with the songId and deserialize it
             val file = File("$HOME/.spotdl/meta_info/$songId.spotdl")
             val json = file.readText()
-            songInfo = Json.decodeFromString(ListSerializer(Song.serializer()), json)
+            songInfo = jsonUnknownAllower.decodeFromString(ListSerializer(Song.serializer()), json)
         }catch (e: Exception){
             throw SpotDLException("Error parsing song info", e)
         }
