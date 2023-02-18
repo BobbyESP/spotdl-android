@@ -233,8 +233,26 @@ open class SpotDL {
         inputStream.close()
     }
 
+    fun destroyProcessById(id: String): Boolean {
+        if (id2Process.containsKey(id)) {
+            val p = id2Process[id]
+            var alive = true
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                alive = p!!.isAlive
+            }
+            if (alive) {
+                p!!.destroy()
+                id2Process.remove(id)
+                return true
+            }
+        }
+        return false
+    }
+
+    class CanceledException : Exception()
+
     @JvmOverloads
-    @Throws(SpotDLException::class, InterruptedException::class)
+    @Throws(SpotDLException::class, InterruptedException::class, CanceledException::class)
     fun execute(
         request: SpotDLRequest,
         processId: String?,
@@ -242,7 +260,7 @@ open class SpotDL {
     ): SpotDLResponse {
         assertInit()
         //Check if the process ID already exists or not.
-        if (id2Process.containsKey(processId)) throw SpotDLException("Process ID already exists")
+        if ( processId != null &&  id2Process.containsKey(processId)) throw SpotDLException("Process ID already exists")
 
         // disable caching unless it is explicitly requested
         if (!request.hasOption("--cache-path") || request.getOption("--cache-path") == null) {
@@ -314,16 +332,10 @@ open class SpotDL {
             stdErrProcessor.join()
             process.waitFor()
         } catch (e: InterruptedException) {
-            try {
-                process.destroy()
-            } catch (e: Exception) {
-                Log.w("SpotDL", "Error destroying process or it was ignored", e)
-            }
+            process.destroy()
             if (processId != null) id2Process.remove(processId)
             throw e
         }
-
-        if (processId != null) id2Process.remove(processId)
 
         val out = outBuffer.toString()
         val err = errBuffer.toString()
@@ -334,8 +346,17 @@ open class SpotDL {
         val errClean = err.replace("(?:\\x1B[@-Z\\\\-_]|[\\x80-\\x9A\\x9C-\\x9F]|(?:\\x1B\\[|\\x9B)[0-?]*[ -/]*[@-~])".toRegex(), "")
 
         if(exitCode > 0 && !command.contains("--print-errors")) {
-            throw SpotDLException("Error executing command: $command, exit code: $exitCode, stderr: $err")
+            throw SpotDLException("Error executing command: $command, exit code: $exitCode, stderr: $errClean \n\n stdout: $outClean")
         }
+
+        if (exitCode > 0) {
+            if (processId != null && !id2Process.containsKey(processId))
+                throw CanceledException()
+                id2Process.remove(processId)
+                throw SpotDLException(err)
+        }
+
+        id2Process.remove(processId)
 
         val elapsedTime = System.currentTimeMillis() - startTime
 
@@ -388,29 +409,9 @@ open class SpotDL {
         return songInfo
     }
 
-    open fun destroyProcessById(id: String): Boolean {
-        if (id2Process.containsKey(id)) {
-            val p = id2Process[id]
-            var alive = true
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                if (!p!!.isAlive) {
-                    alive = false
-                }
-            }
-            if (alive) {
-                try {
-                    p!!.destroy()
-                    return true
-                } catch (ignored: Exception) {
-                }
-            }
-        }
-        return false
-    }
-
     open fun version(appContext: Context): String? {
        // return SpotDLUpdater.getInstance().version(appContext)
-        return "Hand-imported v4.0.6"
+        return "Hand-imported v4.1.0 (Preview)"
     }
 
     @Throws(SpotDLException::class)
