@@ -82,7 +82,7 @@ open class SpotDL {
         }
 
         val termuxSpotDLPath_Text = File("/data/data/com.termux/files/home/.spotdl")
-        if(!termuxSpotDLPath_Text.exists()) {
+        if (!termuxSpotDLPath_Text.exists()) {
             termuxSpotDLPath_Text.mkdirs()
         }
 
@@ -95,15 +95,15 @@ open class SpotDL {
         //Setup the files directories to be used
         binDir = File(appContext.applicationInfo.nativeLibraryDir)
 
-        if(isDebug) Log.d("SpotDL", "Bin dir: $binDir")
+        if (isDebug) Log.d("SpotDL", "Bin dir: $binDir")
 
         pythonPath = File(binDir, pythonBinName)
 
-        if(isDebug) Log.d("SpotDL", "Python path: $pythonPath")
+        if (isDebug) Log.d("SpotDL", "Python path: $pythonPath")
 
         ffmpegPath = File(binDir, ffmpegBinName)
 
-        if(isDebug) Log.d("SpotDL", "FFMPEG path: $ffmpegPath")
+        if (isDebug) Log.d("SpotDL", "FFMPEG path: $ffmpegPath")
 
         val pythonDir = File(packagesDir, pythonDirName)
         val ffmpegDir = File(packagesDir, ffmpegDirName)
@@ -125,7 +125,7 @@ open class SpotDL {
 
         //Initialize the python and spotdl files
         try {
-            if(HOME != null) {
+            if (HOME != null) {
                 val homeDir = File(HOME)
                 if (!homeDir.exists()) {
                     homeDir.mkdirs()
@@ -143,7 +143,7 @@ open class SpotDL {
     }
 
     //Just for testing
-    private fun givefullAccess(path: String){
+    private fun givefullAccess(path: String) {
         val command = "chmod 777 $path"
         val runtime = Runtime.getRuntime()
         runtime.exec(command)
@@ -260,7 +260,7 @@ open class SpotDL {
     ): SpotDLResponse {
         assertInit()
         //Check if the process ID already exists or not.
-        if ( processId != null &&  id2Process.containsKey(processId)) throw SpotDLException("Process ID already exists")
+        if (processId != null && id2Process.containsKey(processId)) throw SpotDLException("Process ID already exists")
 
         // disable caching unless it is explicitly requested
         if (!request.hasOption("--cache-path") || request.getOption("--cache-path") == null) {
@@ -290,7 +290,8 @@ open class SpotDL {
         val env = processBuilder.environment()
         env["LD_LIBRARY_PATH"] = ENV_LD_LIBRARY_PATH!!
         env["SSL_CERT_FILE"] = ENV_SSL_CERT_FILE!!
-        env["PATH"] = System.getenv("PATH")!! + ":" + binDir!!.absolutePath + ":" + ffmpegPath!!.absolutePath
+        env["PATH"] =
+            System.getenv("PATH")!! + ":" + binDir!!.absolutePath + ":" + ffmpegPath!!.absolutePath
         env["PYTHONHOME"] = ENV_PYTHONHOME!!
         env["HOME"] = HOME!!
         //ENVIRONMENT VARIABLES TO FORCE RICH PYTHON LIB TO SHOW THE PROGRESS LINE.
@@ -313,8 +314,8 @@ open class SpotDL {
 
         val outStream: InputStream = process.inputStream
         val errStream: InputStream = process.errorStream
-        if(isDebug) Log.d("SpotDL", "Out stream: $outStream")
-        if(isDebug) Log.d("SpotDL", "Err stream: $errStream")
+        if (isDebug) Log.d("SpotDL", "Out stream: $outStream")
+        if (isDebug) Log.d("SpotDL", "Err stream: $errStream")
 
         val stdOutProcessor = StreamProcessExtractor(
             outBuffer,
@@ -341,19 +342,25 @@ open class SpotDL {
         val err = errBuffer.toString()
 
         //Delete ANSI (cleaner output)
-        val outClean = out.replace("(?:\\x1B[@-Z\\\\-_]|[\\x80-\\x9A\\x9C-\\x9F]|(?:\\x1B\\[|\\x9B)[0-?]*[ -/]*[@-~])".toRegex(), "")
+        val outClean = out.replace(
+            "(?:\\x1B[@-Z\\\\-_]|[\\x80-\\x9A\\x9C-\\x9F]|(?:\\x1B\\[|\\x9B)[0-?]*[ -/]*[@-~])".toRegex(),
+            ""
+        )
         //Cleaner output
-        val errClean = err.replace("(?:\\x1B[@-Z\\\\-_]|[\\x80-\\x9A\\x9C-\\x9F]|(?:\\x1B\\[|\\x9B)[0-?]*[ -/]*[@-~])".toRegex(), "")
+        val errClean = err.replace(
+            "(?:\\x1B[@-Z\\\\-_]|[\\x80-\\x9A\\x9C-\\x9F]|(?:\\x1B\\[|\\x9B)[0-?]*[ -/]*[@-~])".toRegex(),
+            ""
+        )
 
-        if(exitCode > 0 && !command.contains("--print-errors")) {
+        if (exitCode > 0 && !command.contains("--print-errors")) {
             throw SpotDLException("Error executing command: $command, exit code: $exitCode, stderr: $errClean \n\n stdout: $outClean")
         }
 
         if (exitCode > 0) {
             if (processId != null && !id2Process.containsKey(processId))
                 throw CanceledException()
-                id2Process.remove(processId)
-                throw SpotDLException(err)
+            id2Process.remove(processId)
+            throw SpotDLException(err)
         }
 
         id2Process.remove(processId)
@@ -362,7 +369,7 @@ open class SpotDL {
 
         spotDLResponse = SpotDLResponse(command, exitCode, elapsedTime, outClean, errClean)
 
-        if(BuildConfig.DEBUG) {
+        if (BuildConfig.DEBUG) {
             Log.d("SpotDL", "Stdout: $outClean")
             Log.e("SpotDL", "Stderr: $errClean")
             Log.d(
@@ -382,7 +389,7 @@ open class SpotDL {
         //Make sure that the path exists
         val metadataDirectory = File("$HOME/.spotdl/meta_info/")
 
-        if(!metadataDirectory.exists()){
+        if (!metadataDirectory.exists()) {
             metadataDirectory.mkdirs()
         }
 
@@ -394,23 +401,27 @@ open class SpotDL {
         execute(request, null, null)
 
         val songInfo: List<Song>
-        try{
+        try {
             //get the song info from the file with the songId and deserialize it
             val file = File("$HOME/.spotdl/meta_info/$songId.spotdl")
-            val json = file.readText()
-            //Return the song info as a data class object
-            songInfo = jsonUnknownAllower.decodeFromString(ListSerializer(Song.serializer()), json)
-        }catch (e: Exception){
+            val builder = StringBuilder()
+
+            file.forEachLine { builder.append(it) }
+            songInfo = jsonUnknownAllower.decodeFromString(
+                ListSerializer(Song.serializer()),
+                builder.toString()
+            )
+        } catch (e: Exception) {
             throw SpotDLException("Error parsing song info", e)
         }
 
-        if(songInfo == null) throw SpotDLException("Failed fetching song info. Song info is null")
+        if (songInfo == null) throw SpotDLException("Failed fetching song info. Song info is null")
 
         return songInfo
     }
 
     open fun version(appContext: Context): String? {
-       // return SpotDLUpdater.getInstance().version(appContext)
+        // return SpotDLUpdater.getInstance().version(appContext)
         return "Hand-imported v4.1.0 (Preview)"
     }
 
