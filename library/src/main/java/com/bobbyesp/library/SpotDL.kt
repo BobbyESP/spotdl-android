@@ -359,7 +359,7 @@ open class SpotDL {
         if (exitCode > 0) {
             if (processId != null && !id2Process.containsKey(processId))
                 throw CanceledException()
-            id2Process.remove(processId)
+            destroyProcessById(processId!!)
             throw SpotDLException(err)
         }
 
