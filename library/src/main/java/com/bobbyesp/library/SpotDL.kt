@@ -30,7 +30,7 @@ open class SpotDL {
     val baseName = "spotdl_android"
 
     val spotdlDirName = "spotdl"
-    val spotdlBin = "spotdl_bin"
+    val spotdlBin = "spotDL"
 
     private val packagesRoot = "packages"
 
