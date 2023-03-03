@@ -99,6 +99,8 @@ class HomeViewModel @Inject constructor() : ViewModel() {
                     request.addOption("--log-level", "DEBUG")
                     //request.addOption("--simple-tui")
                     request.addOption("--output", downloadDir.absolutePath)
+                    request.addOption("--client-id", "abcad8ba647d4b0ebae797a8f444ac9b")
+                    request.addOption("--client-secret", "7ac6711e50044f1db20e4610f10f1f98")
                     val processId = UUID.randomUUID().toString()
 
                     //Print every command

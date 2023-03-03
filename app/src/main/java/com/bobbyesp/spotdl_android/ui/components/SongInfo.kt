@@ -232,17 +232,17 @@ fun SongInfo(
                                 )
                                 MetadataInfo(
                                     type = "Song publisher",
-                                    value = song.publisher
+                                    value = song.publisher?: "Unknown"
                                 )
                                 MetadataInfo(type = "Song url", value = song.url)
                                 MetadataInfo(
                                     type = "Song cover url",
                                     value = song.cover_url
                                 )
-                                MetadataInfo(type = "Song ISRC", value = song.isrc)
+                                MetadataInfo(type = "Song ISRC", value = song.isrc ?: "Unknown")
                                 MetadataInfo(
                                     type = "Song copyright text",
-                                    value = song.copyright_text
+                                    value = song.copyright_text ?: "Unknown"
                                 )
                             } else {
                                 ElevatedCard(
@@ -337,17 +337,17 @@ fun SongInfo(
                                         )
                                         MetadataInfo(
                                             type = "Song publisher",
-                                            value = song.publisher
+                                            value = song.publisher ?: "Unknown"
                                         )
                                         MetadataInfo(type = "Song url", value = song.url)
                                         MetadataInfo(
                                             type = "Song cover url",
                                             value = song.cover_url
                                         )
-                                        MetadataInfo(type = "Song ISRC", value = song.isrc)
+                                        MetadataInfo(type = "Song ISRC", value = song.isrc ?: "Unknown")
                                         MetadataInfo(
                                             type = "Song copyright text",
-                                            value = song.copyright_text
+                                            value = song.copyright_text ?: "Unknown"
                                         )
                                     }
                                 }
