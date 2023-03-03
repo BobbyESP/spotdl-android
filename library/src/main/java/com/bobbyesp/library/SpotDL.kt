@@ -30,7 +30,7 @@ open class SpotDL {
     val baseName = "spotdl_android"
 
     val spotdlDirName = "spotdl"
-    val spotdlBin = "spotDL"
+    val spotdlBin = "spotdl"
 
     private val packagesRoot = "packages"
 
@@ -210,7 +210,7 @@ open class SpotDL {
             try {
                 //See https://github.com/containerd/containerd/blob/269548fa27e0089a8b8278fc4fc781d7f65a939b/platforms/platforms.go#L88
                 //Also https://www.digitalocean.com/community/tutorials/building-go-applications-for-different-operating-systems-and-architectures
-                val binaryFileId = R.raw.spotdl_bin
+                val binaryFileId = R.raw.spotdl
                 val outpuFile = File(spotDlBinary.absolutePath)
                 copyRawResourceToFile(appContext, binaryFileId, outpuFile)
             } catch (e: Exception) {
@@ -247,6 +247,21 @@ open class SpotDL {
             }
         }
         return false
+    }
+
+    @Synchronized
+    @Throws(SpotDLException::class)
+    open fun updateSpotDL(appContext: Context, apiUrl: String? = null): UpdateStatus? {
+        assertInit()
+        return try {
+            SpotDLUpdater.getInstance().update(appContext, apiUrl)
+        } catch (e: IOException) {
+            throw SpotDLException("failed to update spotdl", e)
+        }
+    }
+
+    open fun version(appContext: Context?): String? {
+        return SpotDLUpdater.getInstance().version(appContext!!)
     }
 
     class CanceledException : Exception()
@@ -418,11 +433,6 @@ open class SpotDL {
         if (songInfo == null) throw SpotDLException("Failed fetching song info. Song info is null")
 
         return songInfo
-    }
-
-    open fun version(appContext: Context): String? {
-        // return SpotDLUpdater.getInstance().version(appContext)
-        return "Hand-imported v4.1.0 (Preview)"
     }
 
     @Throws(SpotDLException::class)
