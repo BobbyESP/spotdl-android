@@ -41,7 +41,7 @@ object FFmpeg {
     }
 
     private fun shouldUpdateFFmpeg(appContext: Context, version: String): Boolean {
-        return false
+        return version != SharedPrefsHelper[appContext, ffmpegLibVersion]
     }
 
     private fun updateFFmpeg(appContext: Context, version: String) {
