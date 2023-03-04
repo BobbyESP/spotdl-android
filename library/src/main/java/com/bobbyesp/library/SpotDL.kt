@@ -267,16 +267,6 @@ open class SpotDL {
 
     class CanceledException : Exception()
 
-    private fun writeFFmpegRouteInSettings() {
-        val jsonFile = File("$HOME/.spotdl/config.json")
-        val json = JSONObject(jsonFile.readText())
-        //if the "ffmpeg" key is equal to "ffmpeg" then we need to update it
-        if (json.getString("ffmpeg") == "ffmpeg") {
-            json.put("ffmpeg", ffmpegPath!!.absolutePath)
-            jsonFile.writeText(json.toString())
-        }
-    }
-
     @JvmOverloads
     @Throws(SpotDLException::class, InterruptedException::class, CanceledException::class)
     fun execute(
@@ -292,6 +282,8 @@ open class SpotDL {
         if (!request.hasOption("--cache-path") || request.getOption("--cache-path") == null) {
             request.addOption("--no-cache")
         }
+
+        request.addOption("--ffmpeg", ffmpegPath!!.absolutePath)
 
         val spotDLResponse: SpotDLResponse
         val process: Process
@@ -323,11 +315,6 @@ open class SpotDL {
         //Thanks xnetcat (https://github.com/xnetcat) (principal spotdl library developer/maintainer) for the help and time!
         env["TERM"] = "xterm-256color"
         env["FORCE_COLOR"] = "true"
-
-        //Search in a json file for the "ffmpeg" key and put the value of ffmpegPath!!.absolutePath
-        //in the "ffmpeg" key
-
-        writeFFmpegRouteInSettings()
 
         process = try {
             processBuilder.start()

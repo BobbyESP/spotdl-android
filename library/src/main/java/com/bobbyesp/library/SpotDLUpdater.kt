@@ -2,6 +2,7 @@ package com.bobbyesp.library
 
 import android.content.Context
 import com.bobbyesp.commonutilities.SharedPrefsHelper
+import com.bobbyesp.library.dto.Release
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.jsonArray
@@ -54,16 +55,14 @@ open class SpotDLUpdater {
         SharedPrefsHelper.update(appContext, spotDLVersionKey, tag)
     }
 
-    @Throws(IOException::class)
+    //check for updates+
+    @Throws(IOException::class, SpotDLException::class)
     private fun checkForUpdate(appContext: Context, apiUrl: String? = null): JsonElement? {
-        val url = URL(apiUrl ?: releasesUrl)
-        val jsonString: String = url.readText()
-        val json: JsonElement = Json.parseToJsonElement(jsonString)
-        val newVersion = getTag(json)
-        val oldVersion = SharedPrefsHelper[appContext, spotDLVersionKey]
-        return if (newVersion == oldVersion) {
-            null
-        } else json
+        val url = apiUrl ?: releasesUrl
+        val json = Json.parseToJsonElement(URL(url).readText())
+        val tag = getTag(json)
+        val currentVersion = SharedPrefsHelper[appContext, spotDLVersionKey] ?: ""
+        return if (tag != currentVersion) json else null
     }
 
     private fun getTag(json: JsonElement): String {
