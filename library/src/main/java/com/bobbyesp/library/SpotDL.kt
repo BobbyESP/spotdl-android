@@ -9,6 +9,7 @@ import com.bobbyesp.library.dto.Song
 import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.json.Json
 import org.apache.commons.io.FileUtils
+import org.json.JSONObject
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -45,7 +46,7 @@ open class SpotDL {
     private var initialized: Boolean = false
 
     private var pythonPath: File? = null
-    private var ffmpegPath: File? = null
+    var ffmpegPath: File? = null
     private var spotdlPath: File? = null
     private var binDir: File? = null
 
@@ -266,6 +267,16 @@ open class SpotDL {
 
     class CanceledException : Exception()
 
+    private fun writeFFmpegRouteInSettings() {
+        val jsonFile = File("$HOME/.spotdl/config.json")
+        val json = JSONObject(jsonFile.readText())
+        //if the "ffmpeg" key is equal to "ffmpeg" then we need to update it
+        if (json.getString("ffmpeg") == "ffmpeg") {
+            json.put("ffmpeg", ffmpegPath!!.absolutePath)
+            jsonFile.writeText(json.toString())
+        }
+    }
+
     @JvmOverloads
     @Throws(SpotDLException::class, InterruptedException::class, CanceledException::class)
     fun execute(
@@ -281,8 +292,6 @@ open class SpotDL {
         if (!request.hasOption("--cache-path") || request.getOption("--cache-path") == null) {
             request.addOption("--no-cache")
         }
-        //MANDATORY!
-        request.addOption("--ffmpeg", ffmpegPath!!.absolutePath)
 
         val spotDLResponse: SpotDLResponse
         val process: Process
@@ -309,10 +318,16 @@ open class SpotDL {
             System.getenv("PATH")!! + ":" + binDir!!.absolutePath + ":" + ffmpegPath!!.absolutePath
         env["PYTHONHOME"] = ENV_PYTHONHOME!!
         env["HOME"] = HOME!!
+        env["ffmpeg"] = ffmpegPath!!.absolutePath
         //ENVIRONMENT VARIABLES TO FORCE RICH PYTHON LIB TO SHOW THE PROGRESS LINE.
         //Thanks xnetcat (https://github.com/xnetcat) (principal spotdl library developer/maintainer) for the help and time!
         env["TERM"] = "xterm-256color"
         env["FORCE_COLOR"] = "true"
+
+        //Search in a json file for the "ffmpeg" key and put the value of ffmpegPath!!.absolutePath
+        //in the "ffmpeg" key
+
+        writeFFmpegRouteInSettings()
 
         process = try {
             processBuilder.start()
@@ -324,7 +339,7 @@ open class SpotDL {
 
         if (processId != null) {
             id2Process[processId] = process
-            Log.d("SpotDL", "Added process to map: ${processId[0].code}")
+            Log.d("SpotDL", "Added process to map: $processId")
         }
 
         val outStream: InputStream = process.inputStream
