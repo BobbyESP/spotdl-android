@@ -40,7 +40,7 @@ open class SpotDL {
     private val pythonLibVersion = "pythonLibVersion"
 
     private val ffmpegDirName = "ffmpeg"
-    private val ffmpegBinName = "libffmpeg.bin.so"
+    private val ffmpegBinName = "libffmpeg.so"
 
     private var initialized: Boolean = false
 
