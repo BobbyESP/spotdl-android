@@ -23,6 +23,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.LinearProgressIndicator
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.outlined.Cancel
 import androidx.compose.material.icons.outlined.ContentPaste
 import androidx.compose.material.icons.outlined.Download
 import androidx.compose.material.icons.outlined.Search
@@ -118,6 +119,9 @@ fun HomePage(
                         this.imePadding()
                     },
                     downloadCallback = {
+                        StateHolder.mutableTaskState.update {
+                            it.copy(url = text)
+                        }
                         homeViewModel.downloadSong(text) { progress, _, line ->
                             //Divide the progress by 100 to get a value between 0 and 1
                             StateHolder.mutableTaskState.update {
@@ -126,7 +130,8 @@ fun HomePage(
                         }
                     },
                     pasteCallback = { setText(clipboardManager.getText().toString()) },
-                    requestInfoCallback = { homeViewModel.requestSongInfo(text) }
+                    requestInfoCallback = { homeViewModel.requestSongInfo(text) },
+                    onCancelCallback = { homeViewModel.cancelDownload("${StateHolder.mutableTaskState.value.url}_${StateHolder.mutableTaskState.value.url.reversed()}") },
                 )
             }
         }) {
@@ -137,7 +142,9 @@ fun HomePage(
                     .padding(it),
                 color = MaterialTheme.colorScheme.background,
             ) {
-                Box(modifier = Modifier.fillMaxSize().padding(start = 16.dp, end = 16.dp)) {
+                Box(modifier = Modifier
+                    .fillMaxSize()
+                    .padding(start = 16.dp, end = 16.dp)) {
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -158,6 +165,7 @@ fun HomePage(
                         OutlinedTextField(
                             value = text,
                             isError = false,
+                            readOnly = taskState.isDownloading,
                             onValueChange = { setText(it) },
                             label = { Text(stringResource(R.string.enter_url)) },
                             modifier = Modifier
@@ -258,7 +266,8 @@ fun FABs(
     modifier: Modifier = Modifier,
     downloadCallback: () -> Unit = {},
     pasteCallback: () -> Unit = {},
-    requestInfoCallback: () -> Unit = {}
+    requestInfoCallback: () -> Unit = {},
+    onCancelCallback : () -> Unit = {}
 ) {
     Column(
         modifier = modifier.padding(6.dp),
@@ -318,6 +327,24 @@ fun FABs(
                     )
                 }
             }, shape = Shapes().small
+        )
+        Button(
+            onClick = onCancelCallback,
+            contentPadding = PaddingValues(12.dp),
+            content = {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        Icons.Outlined.Cancel,
+                        contentDescription = stringResource(R.string.cancel)
+                    )
+                    Text(
+                        text = stringResource(R.string.cancel),
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.padding(start = 8.dp)
+                    )
+                }
+            }, shape = Shapes().small,
+            modifier = Modifier.padding(vertical = 16.dp),
         )
     }
 }

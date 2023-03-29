@@ -38,7 +38,9 @@ internal class StreamProcessExtractor(
             var line: String?
             val arrayOfLines: MutableList<String> = mutableListOf()
             while (bufferedReader.readLine().also { line = it } != null) {
-                //Just read the line, cut that line in it's end and add it to the buffer. Then, the buffer will be read by the UI and after that, it will be cleared
+                //Just read the line, cut that line in it's end and add it to the buffer.
+                // Then, the buffer will be read by the UI and after that, it will be cleared
+
                 //clean output
                 val matcher: Matcher = cleanOutRegex.matcher(line)
                 val cleanLine = matcher.replaceAll("")
@@ -54,7 +56,7 @@ internal class StreamProcessExtractor(
             buffer.append(arrayOfLines.joinToString("\n"))
 
         } catch (e: IOException) {
-            if (BuildConfig.DEBUG) Log.e(TAG, "failed to read stream", e)
+            if (BuildConfig.DEBUG) Log.e(TAG, "Failed to read stream", e)
         }
     }
 

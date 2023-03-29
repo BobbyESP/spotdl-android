@@ -21,4 +21,5 @@
     <string name="download_lyrics">Download Lyrics</string>
     <string name="settings_before_download_text">Adjust the settings</string>
     <string name="general_settings">General</string>
+    <string name="cancel">Cancel</string>
 </resources>

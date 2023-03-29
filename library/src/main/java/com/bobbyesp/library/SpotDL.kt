@@ -9,7 +9,6 @@ import com.bobbyesp.library.dto.Song
 import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.json.Json
 import org.apache.commons.io.FileUtils
-import org.json.JSONObject
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -59,7 +58,7 @@ open class SpotDL {
     private val isDebug = BuildConfig.DEBUG
 
 
-    private val id2Process = Collections.synchronizedMap(HashMap<String, Process>())
+    private val idProcessMap = Collections.synchronizedMap(HashMap<String, Process>())
 
     //ignore jsonUnknownKeys
     private val jsonUnknownAllower = Json {
@@ -134,7 +133,6 @@ open class SpotDL {
             }
             initPython(appContext, pythonDir)
             initSpotDL(appContext, spotDLdir)
-            //givefullAccess("/data/user/0/com.bobbyesp.spotdl_android/files/spotdl/.spotdl/ffmpeg")
 
         } catch (e: Exception) {
             throw SpotDLException("Error initializing python and spotdl", e)
@@ -144,7 +142,7 @@ open class SpotDL {
     }
 
     //Just for testing
-    private fun givefullAccess(path: String) {
+    private fun giveFullStorageAccess(path: String) {
         val command = "chmod 777 $path"
         val runtime = Runtime.getRuntime()
         runtime.exec(command)
@@ -212,8 +210,8 @@ open class SpotDL {
                 //See https://github.com/containerd/containerd/blob/269548fa27e0089a8b8278fc4fc781d7f65a939b/platforms/platforms.go#L88
                 //Also https://www.digitalocean.com/community/tutorials/building-go-applications-for-different-operating-systems-and-architectures
                 val binaryFileId = R.raw.spotdl
-                val outpuFile = File(spotDlBinary.absolutePath)
-                copyRawResourceToFile(appContext, binaryFileId, outpuFile)
+                val outputFile = File(spotDlBinary.absolutePath)
+                copyRawResourceToFile(appContext, binaryFileId, outputFile)
             } catch (e: Exception) {
                 FileUtils.deleteQuietly(spotDLdir)
                 throw SpotDLException("Error extracting spotdl files", e)
@@ -235,15 +233,20 @@ open class SpotDL {
     }
 
     fun destroyProcessById(id: String): Boolean {
-        if (id2Process.containsKey(id)) {
-            val p = id2Process[id]
+        Log.d("SpotDL", "Destroying process $id")
+        Log.d("SpotDL", "--------------------------------------")
+        Log.d( "SpotDL", "idProcessMap: $idProcessMap")
+        Log.d("SpotDL", "--------------------------------------")
+        Log.d( "SpotDL", "Does the map contain the id? ${idProcessMap.containsKey(id)}")
+        if (idProcessMap.containsKey(id)) {
+            val p = idProcessMap[id]
             var alive = true
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 alive = p!!.isAlive
             }
             if (alive) {
                 p!!.destroy()
-                id2Process.remove(id)
+                idProcessMap.remove(id)
                 return true
             }
         }
@@ -271,13 +274,12 @@ open class SpotDL {
     @Throws(SpotDLException::class, InterruptedException::class, CanceledException::class)
     fun execute(
         request: SpotDLRequest,
-        processId: String?,
+        processId: String? = null,
         callback: ((Float, Long, String) -> Unit)? = null
     ): SpotDLResponse {
         assertInit()
         //Check if the process ID already exists or not.
-        if (processId != null && id2Process.containsKey(processId)) throw SpotDLException("Process ID already exists")
-
+        if (processId != null && idProcessMap.containsKey(processId)) throw SpotDLException("Process ID already exists! Change the process ID and retry.")
         // disable caching unless it is explicitly requested
         if (!request.hasOption("--cache-path") || request.getOption("--cache-path") == null) {
             request.addOption("--no-cache")
@@ -322,11 +324,11 @@ open class SpotDL {
             throw SpotDLException("Error starting process", e)
         }
 
-        Log.d("SpotDL", "Started process: $process")
+        Log.d("SpotDL", "Started process: $process; the process ID is: $processId")
 
         if (processId != null) {
-            id2Process[processId] = process
-            Log.d("SpotDL", "Added process to map: $processId")
+            idProcessMap[processId] = process
+            Log.d("SpotDL", "Added process to the process map: $processId")
         }
 
         val outStream: InputStream = process.inputStream
@@ -351,7 +353,7 @@ open class SpotDL {
             process.waitFor()
         } catch (e: InterruptedException) {
             process.destroy()
-            if (processId != null) id2Process.remove(processId)
+            if (processId != null) idProcessMap.remove(processId)
             throw e
         }
 
@@ -374,13 +376,20 @@ open class SpotDL {
         }
 
         if (exitCode > 0) {
-            if (processId != null && !id2Process.containsKey(processId))
+            if (processId != null && !idProcessMap.containsKey(processId))
                 throw CanceledException()
-            destroyProcessById(processId!!)
-            throw SpotDLException(err)
+            if (!ignoreErrors(request, out)) {
+                idProcessMap.remove(processId)
+                throw SpotDLException(err)
+            }
         }
 
-        id2Process.remove(processId)
+        try {
+            idProcessMap.remove(processId)
+            Log.d("SpotDL", "Removed process from the process map: $processId")
+        } catch (e: Exception) {
+            Log.e("SpotDL", "Error removing process from the process map: $processId")
+        }
 
         val elapsedTime = System.currentTimeMillis() - startTime
 
@@ -398,6 +407,10 @@ open class SpotDL {
         }
 
         return spotDLResponse
+    }
+
+    private fun ignoreErrors(request: SpotDLRequest, out: String): Boolean {
+        return out.isNotEmpty() && !request.hasOption("--print-errors")
     }
 
     @Throws(SpotDLException::class, InterruptedException::class)
@@ -439,7 +452,7 @@ open class SpotDL {
 
     @Throws(SpotDLException::class)
     private fun assertInit() {
-        check(initialized) { "instance not initialized" }
+        check(initialized) { "The SpotDL instance is not initialized" }
     }
 
     enum class UpdateStatus {

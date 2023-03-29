@@ -101,7 +101,7 @@ class HomeViewModel @Inject constructor() : ViewModel() {
                     request.addOption("--output", downloadDir.absolutePath)
                     request.addOption("--client-id", "abcad8ba647d4b0ebae797a8f444ac9b")
                     request.addOption("--client-secret", "7ac6711e50044f1db20e4610f10f1f98")
-                    val processId = UUID.randomUUID().toString()
+                    val processId = "${link}_${link.reversed()}"
 
                     //Print every command
                     for (s in request.buildCommand()) Log.d(TAG, s)
@@ -120,6 +120,16 @@ class HomeViewModel @Inject constructor() : ViewModel() {
                     cleanUpDownload()
                 }
             }
+        }
+    }
+
+    fun cancelDownload(id: String){
+        currentJob?.cancel()
+        try {
+            SpotDL.getInstance().destroyProcessById(id)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            Log.d("MainActivity", "Error cancelling download. ${e.message}")
         }
     }
     fun requestSongInfo(url: String): List<Song> {

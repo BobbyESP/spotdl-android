@@ -26,8 +26,6 @@ object GeneralUtils {
         } else {
             duration = durationOfSong
         }
-
-        Log.d("GeneralUtils", "convertDuration: $duration")
         val hours = (duration / 3600).toInt()
         val minutes = ((duration % 3600) / 60).toInt()
         val seconds = (duration % 60).toInt()
