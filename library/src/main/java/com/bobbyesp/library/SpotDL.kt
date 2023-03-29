@@ -275,7 +275,8 @@ open class SpotDL {
     fun execute(
         request: SpotDLRequest,
         processId: String? = null,
-        callback: ((Float, Long, String) -> Unit)? = null
+        callback: ((Float, Long, String) -> Unit)? = null,
+        forceProcessDestroy : Boolean = false
     ): SpotDLResponse {
         assertInit()
         //Check if the process ID already exists or not.
@@ -289,7 +290,7 @@ open class SpotDL {
 
         val spotDLResponse: SpotDLResponse
         val process: Process
-        var exitCode: Int = 0
+        var exitCode = 0
 
         val outBuffer = StringBuffer() //stdout
 
@@ -352,6 +353,9 @@ open class SpotDL {
             stdErrProcessor.join()
             process.waitFor()
         } catch (e: InterruptedException) {
+           if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && forceProcessDestroy) {
+                process.destroyForcibly()
+            }
             process.destroy()
             if (processId != null) idProcessMap.remove(processId)
             throw e
@@ -371,13 +375,12 @@ open class SpotDL {
             ""
         )
 
-        if (exitCode > 0 && !command.contains("--print-errors")) {
-            throw SpotDLException("Error executing command: $command, exit code: $exitCode, stderr: $errClean \n\n stdout: $outClean")
-        }
-
         if (exitCode > 0) {
             if (processId != null && !idProcessMap.containsKey(processId))
                 throw CanceledException()
+            if(!command.contains("--print-errors")) {
+                throw SpotDLException("Error executing command: $command, exit code: $exitCode, stderr: $errClean \n\n stdout: $outClean")
+            }
             if (!ignoreErrors(request, out)) {
                 idProcessMap.remove(processId)
                 throw SpotDLException(err)
@@ -413,7 +416,7 @@ open class SpotDL {
         return out.isNotEmpty() && !request.hasOption("--print-errors")
     }
 
-    @Throws(SpotDLException::class, InterruptedException::class)
+    @Throws(SpotDLException::class, InterruptedException::class, CanceledException::class)
     fun getSongInfo(url: String, isPlaylist: Boolean = false): List<Song> {
         assertInit()
         //Make sure that the path exists
