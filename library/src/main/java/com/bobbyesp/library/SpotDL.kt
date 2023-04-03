@@ -233,12 +233,13 @@ open class SpotDL {
         inputStream.close()
     }
 
-    fun destroyProcessById(id: String): Boolean {
+    fun destroyProcessById(id: String, forceProcessDestroy: Boolean = false): Boolean {
         Log.d("SpotDL", "Destroying process $id")
         Log.d("SpotDL", "--------------------------------------")
         Log.d( "SpotDL", "idProcessMap: $idProcessMap")
         Log.d("SpotDL", "--------------------------------------")
         Log.d( "SpotDL", "Does the map contain the id? ${idProcessMap.containsKey(id)}")
+
         if (idProcessMap.containsKey(id)) {
             val p = idProcessMap[id]
             var alive = true
@@ -246,7 +247,11 @@ open class SpotDL {
                 alive = p!!.isAlive
             }
             if (alive) {
-                p!!.destroy()
+                if (forceProcessDestroy && Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    p!!.destroyForcibly()
+                } else {
+                    p!!.destroy()
+                }
                 idProcessMap.remove(id)
                 return true
             }
