@@ -6,6 +6,7 @@ buildscript {
         navigationVersion = '2.5.0'
         hiltVersion = '2.43.2'
         kotlinxSerializationJson = "1.4.1"
+        kotlinxCoroutinesCore = "1.6.4"
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:4.1.3'

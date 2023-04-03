@@ -27,6 +27,7 @@ open class SpotDL {
     //lib.so.6: https://www.golinuxcloud.com/how-do-i-install-the-linux-library-libc-so-6/
     //Because: ImportError: dlopen failed: library "libc.so.6" not found: needed by /data/data/com.bobbyesp.spotdl_android/no_backup/spotdl_android/packages/python/usr/lib/python3.8/site-packages/pydantic/__init__.cpython-38.so in namespace (default)
 
+
     val baseName = "spotdl_android"
 
     val spotdlDirName = "spotdl"
@@ -253,14 +254,13 @@ open class SpotDL {
         return false
     }
 
-    @Synchronized
     @Throws(SpotDLException::class)
-    open fun updateSpotDL(appContext: Context, apiUrl: String? = null): UpdateStatus? {
+    open suspend fun updateSpotDL(appContext: Context, apiUrl: String? = null): UpdateStatus? {
         assertInit()
         return try {
-            SpotDLUpdater.getInstance().update(appContext, apiUrl)
+            SpotDLUpdater.getInstance().update(appContext)
         } catch (e: IOException) {
-            throw SpotDLException("failed to update spotdl", e)
+            throw SpotDLException("Failed to update the spotDL library.", e)
         }
     }
 

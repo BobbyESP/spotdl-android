@@ -57,7 +57,9 @@ import kotlinx.coroutines.flow.update
 //IMPORTANT NOTE
 //https://stackoverflow.com/questions/64951605/var-value-by-remember-mutablestateofdefault-produce-error-why
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import kotlinx.coroutines.launch
 
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
@@ -73,6 +75,8 @@ fun HomePage(
 
     //get 0 when the scroll is at the top and 1 when it's at the bottom
     val scrollState = rememberScrollState()
+
+    val scope = rememberCoroutineScope()
 
     val scrollPosition = remember { mutableStateOf(0f) }
 
@@ -142,9 +146,11 @@ fun HomePage(
                     .padding(it),
                 color = MaterialTheme.colorScheme.background,
             ) {
-                Box(modifier = Modifier
-                    .fillMaxSize()
-                    .padding(start = 16.dp, end = 16.dp)) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(start = 16.dp, end = 16.dp)
+                ) {
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -205,13 +211,13 @@ fun HomePage(
                                             text = taskState.songInfo.size.toString() + " songs found. Showing the first one.",
                                             style = MaterialTheme.typography.titleMedium,
                                             fontWeight = FontWeight.Bold,
-                                            modifier = Modifier.padding(top = 8.dp , bottom = 8.dp)
+                                            modifier = Modifier.padding(top = 8.dp, bottom = 8.dp)
                                         )
                                     }
                                     SongCard(
                                         song = taskState.songInfo[0],
                                         progress = taskState.progress,
-                                        modifier = Modifier.padding(top= 16.dp, bottom = 16.dp),
+                                        modifier = Modifier.padding(top = 16.dp, bottom = 16.dp),
                                         isLyrics = taskState.songInfo[0].lyrics?.isNotEmpty()
                                             ?: false,
                                         isExplicit = taskState.songInfo[0].explicit,
@@ -243,6 +249,16 @@ fun HomePage(
                         ) {
                             Text(text = "Open Downloads Folder")
                         }
+                        Spacer(modifier = Modifier.height(32.dp))
+                        Button(
+                            onClick = {
+                                homeViewModel.updateSpotDLLibrary()
+                            }, modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp, vertical = 8.dp)
+                        ) {
+                            Text(text = "Try to update SpotDL")
+                        }
                     }
                 }
             }
@@ -267,7 +283,7 @@ fun FABs(
     downloadCallback: () -> Unit = {},
     pasteCallback: () -> Unit = {},
     requestInfoCallback: () -> Unit = {},
-    onCancelCallback : () -> Unit = {}
+    onCancelCallback: () -> Unit = {}
 ) {
     Column(
         modifier = modifier.padding(6.dp),
@@ -343,7 +359,8 @@ fun FABs(
                         modifier = Modifier.padding(start = 8.dp)
                     )
                 }
-            }, shape = Shapes().small,
+            },
+            shape = Shapes().small,
             modifier = Modifier.padding(vertical = 16.dp),
         )
     }
@@ -351,10 +368,10 @@ fun FABs(
 
 @Composable
 fun SettingsCheckbox(
-    isCheckboxClicked :() -> Boolean,
+    isCheckboxClicked: () -> Boolean,
     onCheckboxClick: () -> Unit,
     text: String,
-){
+) {
     Row(
         modifier = Modifier,
         verticalAlignment = Alignment.CenterVertically,

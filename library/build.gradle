@@ -41,6 +41,10 @@ dependencies {
 
     implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:$kotlinxSerializationJson"
     implementation group: 'commons-io', name: 'commons-io', version: "$commonsIoVer"
+    implementation "com.squareup.okhttp3:okhttp:4.10.0"
+    implementation "com.squareup.okhttp3:logging-interceptor:4.10.0"
+    //add the corrountine dependency
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinxCoroutinesCore"
 }
 
 afterEvaluate{

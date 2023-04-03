@@ -12,6 +12,7 @@ import androidx.lifecycle.ViewModel
 import com.bobbyesp.library.SpotDL
 import com.bobbyesp.library.SpotDLRequest
 import com.bobbyesp.library.dto.Song
+import com.bobbyesp.spotdl_android.App
 import com.bobbyesp.spotdl_android.App.Companion.applicationScope
 import com.bobbyesp.spotdl_android.App.Companion.context
 import com.bobbyesp.spotdl_android.BuildConfig
@@ -171,7 +172,7 @@ class HomeViewModel @Inject constructor() : ViewModel() {
         }
     }
 
-    fun openDownloadsFolder(){
+    fun openDownloadsFolder() {
         //open the downloads folder in the system file manager
         val intent = Intent(Intent.ACTION_VIEW)
         val downloadDir = File(
@@ -187,6 +188,12 @@ class HomeViewModel @Inject constructor() : ViewModel() {
             context.startActivity(intent)
         }else{
             Toast.makeText(context, "No file manager found", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    fun updateSpotDLLibrary() {
+        applicationScope.launch {
+            SpotDL.getInstance().updateSpotDL(context)
         }
     }
 }
