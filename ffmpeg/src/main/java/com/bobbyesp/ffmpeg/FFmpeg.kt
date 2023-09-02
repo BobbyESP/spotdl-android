@@ -50,6 +50,7 @@ object FFmpeg {
 
     @JvmStatic
     fun getInstance() = this
+
     private const val baseName = "spotdl_android"
     private const val packagesRoot = "packages"
     private const val ffmegDirName = "ffmpeg"
