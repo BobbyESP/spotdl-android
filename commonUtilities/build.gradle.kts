@@ -38,20 +38,21 @@ android {
 }
 
 dependencies {
+    implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
     implementation(libs.commons.io)
     implementation(libs.commons.compress)
 }
 
-//afterEvaluate{
-//    publishing {
-//        publications {
-//            maven(MavenPublication) {
-//                from components.release
-//
-//                groupId 'com.github.bobbyesp'
-//                artifactId 'spotdl-android-commonUtilities'
-//                version '0.1.5'
-//            }
-//        }
-//    }
-//}
+afterEvaluate{
+    publishing {
+        publications {
+            create<MavenPublication>("maven") {
+                groupId = "com.github.bobbyesp"
+                artifactId = "spotdl-android-commonUtilities"
+                version = "0.2.0"
+
+                from(components["release"])
+            }
+        }
+    }
+}

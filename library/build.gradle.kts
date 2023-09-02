@@ -40,6 +40,7 @@ android {
 }
 
 dependencies {
+    implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
     implementation(libs.core.ktx)
     implementation(libs.core.appcompat)
     implementation(libs.bundles.coroutines)
@@ -57,16 +58,16 @@ dependencies {
     androidTestImplementation(libs.espresso.core)
 }
 
-//afterEvaluate{
-//    publishing {
-//        publications {
-//            maven(MavenPublication) {
-//                from components.release
-//
-//                groupId 'com.github.bobbyesp'
-//                artifactId 'spotdl-android-library'
-//                version '0.1.5'
-//            }
-//        }
-//    }
-//}
+afterEvaluate{
+    publishing {
+        publications {
+            create<MavenPublication>("maven") {
+                groupId = "com.github.bobbyesp"
+                artifactId = "spotdl-android-library"
+                version = "0.2.0"
+
+                from(components["release"])
+            }
+        }
+    }
+}

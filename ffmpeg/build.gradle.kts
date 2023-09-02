@@ -39,7 +39,7 @@ android {
 }
 
 dependencies {
-//    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
 
     implementation(libs.core.ktx)
     implementation(project(":library"))
@@ -47,16 +47,16 @@ dependencies {
     implementation(libs.commons.io)
 }
 
-//afterEvaluate{
-//    publishing {
-//        publications {
-//            maven(MavenPublication) {
-//                from components.release
-//
-//                groupId 'com.github.bobbyesp'
-//                artifactId 'spotdl-android-ffmpeg'
-//                version '0.1.5'
-//            }
-//        }
-//    }
-//}
+afterEvaluate{
+    publishing {
+        publications {
+            create<MavenPublication>("maven") {
+                groupId = "com.github.bobbyesp"
+                artifactId = "spotdl-android-ffmpeg"
+                version = "0.2.0"
+
+                from(components["release"])
+            }
+        }
+    }
+}
