@@ -1,6 +1,6 @@
 [versions]
 #General, lifecycle and core
-agp = "8.3.0-alpha01"
+agp = "8.3.0-alpha07"
 commonsIo = "2.5"
 commonsCompress = "1.12"
 kotlin = "1.9.0"

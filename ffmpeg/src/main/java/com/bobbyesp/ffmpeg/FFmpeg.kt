@@ -2,7 +2,7 @@ package com.bobbyesp.ffmpeg
 
 import android.content.Context
 import com.bobbyesp.commonutilities.SharedPrefsHelper
-import com.bobbyesp.commonutilities.utils.ZipUtilities.Companion.unzip
+import com.bobbyesp.commonutilities.utils.ZipUtilities.unzip
 import com.bobbyesp.library.SpotDLException
 import org.apache.commons.io.FileUtils
 import java.io.File

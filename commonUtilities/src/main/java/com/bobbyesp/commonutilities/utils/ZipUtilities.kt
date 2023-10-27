@@ -9,40 +9,38 @@ import java.io.FileOutputStream
 import java.io.IOException
 import java.nio.charset.StandardCharsets
 
-open class ZipUtilities {
-    companion object {
-        @Throws(IOException::class, ErrnoException::class, IllegalAccessException::class)
-        open fun unzip(sourceFile: File?, targetDirectory: File) {
-            ZipFile(sourceFile).use { zipFile ->
-                val entries = zipFile.entries
-                while (entries.hasMoreElements()) {
-                    val entry = entries.nextElement()
-                    val entryDestination = File(targetDirectory, entry.name)
-                    // prevent zipSlip
-                    if (!entryDestination.canonicalPath
-                            .startsWith(targetDirectory.canonicalPath + File.separator)
-                    ) {
-                        throw IllegalAccessException("Entry is outside of the target dir: " + entry.name)
+object ZipUtilities {
+    @Throws(IOException::class, ErrnoException::class, IllegalAccessException::class)
+    fun unzip(sourceFile: File?, targetDirectory: File) {
+        ZipFile(sourceFile).use { zipFile ->
+            val entries = zipFile.entries
+            while (entries.hasMoreElements()) {
+                val entry = entries.nextElement()
+                val entryDestination = File(targetDirectory, entry.name)
+                // prevent zipSlip
+                if (!entryDestination.canonicalPath
+                        .startsWith(targetDirectory.canonicalPath + File.separator)
+                ) {
+                    throw IllegalAccessException("Entry is outside of the target dir: " + entry.name)
+                }
+                if (entry.isDirectory) {
+                    entryDestination.mkdirs()
+                } else if (entry.isUnixSymlink) {
+                    zipFile.getInputStream(entry).use { `in` ->
+                        val symlink = IOUtils.toString(
+                            `in`,
+                            StandardCharsets.UTF_8
+                        )
+                        Os.symlink(symlink, entryDestination.absolutePath)
                     }
-                    if (entry.isDirectory) {
-                        entryDestination.mkdirs()
-                    } else if (entry.isUnixSymlink) {
-                        zipFile.getInputStream(entry).use { `in` ->
-                            val symlink = IOUtils.toString(
+                } else {
+                    entryDestination.parentFile?.mkdirs()
+                    zipFile.getInputStream(entry).use { `in` ->
+                        FileOutputStream(entryDestination).use { out ->
+                            IOUtils.copy(
                                 `in`,
-                                StandardCharsets.UTF_8
+                                out
                             )
-                            Os.symlink(symlink, entryDestination.absolutePath)
-                        }
-                    } else {
-                        entryDestination.parentFile.mkdirs()
-                        zipFile.getInputStream(entry).use { `in` ->
-                            FileOutputStream(entryDestination).use { out ->
-                                IOUtils.copy(
-                                    `in`,
-                                    out
-                                )
-                            }
                         }
                     }
                 }

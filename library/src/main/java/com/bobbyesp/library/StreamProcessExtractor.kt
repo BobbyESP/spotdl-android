@@ -17,7 +17,7 @@ internal class StreamProcessExtractor(
 ) : Thread() {
 
     private val cleanOutRegex: Pattern =
-        Pattern.compile("(?:\\x1B[@-Z\\\\-_]|[\\x80-\\x9A\\x9C-\\x9F]|(?:\\x1B\\[|\\x9B)[0-?]*[ -/]*[@-~])")
+        Pattern.compile("(\\x1B[@-Z\\\\-_]|[\\x80-\\x9A\\x9C-\\x9F]|(?:\\x1B\\[|\\x9B)[0-?]*[ -/]*[@-~])")
     init {
         start()
     }
@@ -41,8 +41,10 @@ internal class StreamProcessExtractor(
                 //Just read the line, cut that line in it's end and add it to the buffer.
                 // Then, the buffer will be read by the UI and after that, it will be cleared
 
+                val readLine = line as CharSequence
+
                 //clean output
-                val matcher: Matcher = cleanOutRegex.matcher(line)
+                val matcher: Matcher = cleanOutRegex.matcher(readLine)
                 val cleanLine = matcher.replaceAll("")
                 if(cleanLine != "") processOutputLine(cleanLine)
                 arrayOfLines.add(cleanLine)

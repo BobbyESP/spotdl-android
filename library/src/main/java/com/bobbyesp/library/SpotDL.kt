@@ -1,5 +1,6 @@
 package com.bobbyesp.library
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Build
 import android.util.Log
@@ -24,14 +25,16 @@ open class SpotDL {
     * Then, we can run the main python file and run the library.
     * */
 
-    //lib.so.6: https://www.golinuxcloud.com/how-do-i-install-the-linux-library-libc-so-6/
-    //Because: ImportError: dlopen failed: library "libc.so.6" not found: needed by /data/data/com.bobbyesp.spotdl_android/no_backup/spotdl_android/packages/python/usr/lib/python3.8/site-packages/pydantic/__init__.cpython-38.so in namespace (default)
+    /*
+    lib.so.6: https://www.golinuxcloud.com/how-do-i-install-the-linux-library-libc-so-6/
+    Because: ImportError: dlopen failed: library "libc.so.6" not found: needed by /data/data/com.bobbyesp.spotdl_android/no_backup/spotdl_android/packages/python/usr/lib/python3.8/site-packages/pydantic/__init__.cpython-38.so in namespace (default)
+    */
 
 
     val baseName = "spotdl_android"
 
     val spotdlDirName = "spotdl"
-    val spotdlBin = "spotdl"
+    private val spotdlBin = "spotdl"
 
     private val packagesRoot = "packages"
 
@@ -46,23 +49,24 @@ open class SpotDL {
     private var initialized: Boolean = false
 
     private var pythonPath: File? = null
-    var ffmpegPath: File? = null
+    private var ffmpegPath: File? = null
     private var spotdlPath: File? = null
     private var binDir: File? = null
 
     private var ENV_LD_LIBRARY_PATH: String? = null
     private var ENV_SSL_CERT_FILE: String? = null
     private var ENV_PYTHONHOME: String? = null
-    var HOME: String? = null
+    private var HOME: String? = null
     private var LDFLAGS: String? = null
 
-    private val isDebug = BuildConfig.DEBUG
+    private val ansiCleaner = Regex("(\\x1B[@-Z\\\\-_]|[\\x80-\\x9A\\x9C-\\x9F]|(?:\\x1B\\[|\\x9B)[0-?]*[ -/]*[@-~])")
 
+    private val isDebug = BuildConfig.DEBUG
 
     private val idProcessMap = Collections.synchronizedMap(HashMap<String, Process>())
 
     //ignore jsonUnknownKeys
-    private val jsonUnknownAllower = Json {
+    private val json = Json {
         ignoreUnknownKeys = true
     }
 
@@ -75,6 +79,7 @@ open class SpotDL {
         }
     }
 
+    @SuppressLint("SdCardPath") //because SpotDL was thought to be used only in Termux
     @Synchronized
     @Throws(SpotDLException::class)
     open fun init(appContext: Context) {
@@ -82,9 +87,9 @@ open class SpotDL {
             return
         }
 
-        val termuxSpotDLPath_Text = File("/data/data/com.termux/files/home/.spotdl")
-        if (!termuxSpotDLPath_Text.exists()) {
-            termuxSpotDLPath_Text.mkdirs()
+        val termuxSpotDlPath = File("/data/data/com.termux/files/home/.spotdl")
+        if (!termuxSpotDlPath.exists()) {
+            termuxSpotDlPath.mkdirs()
         }
 
         val baseDir = File(appContext.noBackupFilesDir, baseName)
@@ -109,8 +114,8 @@ open class SpotDL {
         val pythonDir = File(packagesDir, pythonDirName)
         val ffmpegDir = File(packagesDir, ffmpegDirName)
 
-        val spotDLdir = File(baseDir, spotdlDirName)
-        spotdlPath = File(spotDLdir, spotdlBin)
+        val spotdlDir = File(baseDir, spotdlDirName)
+        spotdlPath = File(spotdlDir, spotdlBin)
 
         val appPath = File(appContext.filesDir, "spotdl")
 
@@ -133,7 +138,7 @@ open class SpotDL {
                 }
             }
             initPython(appContext, pythonDir)
-            initSpotDL(appContext, spotDLdir)
+            initSpotDL(appContext, spotdlDir)
 
         } catch (e: Exception) {
             throw SpotDLException("Error initializing python and spotdl", e)
@@ -141,30 +146,12 @@ open class SpotDL {
 
         initialized = true
     }
-
-    //Just for testing
-    private fun giveFullStorageAccess(path: String) {
-        val command = "chmod 777 $path"
-        val runtime = Runtime.getRuntime()
-        runtime.exec(command)
-        //--------------------------
-        val file = File(path)
-        file.setReadable(true, false)
-        file.setExecutable(true, false)
-        file.setWritable(true, false)
-
-        Log.i("SpotDL", "Given full access to $path")
-        Log.i("SpotDL", "Readable: ${file.canRead()}")
-        Log.i("SpotDL", "Executable: ${file.canExecute()}")
-        Log.i("SpotDL", "Writable: ${file.canWrite()}")
-    }
-
     @Throws(SpotDLException::class)
     private fun initPython(appContext: Context, pythonDir: File) {
 
-        val pythonLib: File = File(binDir, pythonLibName)
+        val pythonLib = File(binDir, pythonLibName)
 
-        // using size of lib as version number
+        // using size of lib as version number, so when the lib is updated, the python will be updated too
         val pythonSize = pythonLib.length().toString()
 
         if (!pythonDir.exists() || shouldUpdatePython(appContext, pythonSize)) {
@@ -201,10 +188,10 @@ open class SpotDL {
     }
 
     @Throws(SpotDLException::class)
-    fun initSpotDL(appContext: Context, spotDLdir: File) {
-        if (!spotDLdir.exists()) spotDLdir.mkdirs()
+    fun initSpotDL(appContext: Context, spotDlDir: File) {
+        if (!spotDlDir.exists()) spotDlDir.mkdirs()
 
-        val spotDlBinary = File(spotDLdir, spotdlBin)
+        val spotDlBinary = File(spotDlDir, spotdlBin)
 
         if (!spotDlBinary.exists()) {
             try {
@@ -214,7 +201,7 @@ open class SpotDL {
                 val outputFile = File(spotDlBinary.absolutePath)
                 copyRawResourceToFile(appContext, binaryFileId, outputFile)
             } catch (e: Exception) {
-                FileUtils.deleteQuietly(spotDLdir)
+                FileUtils.deleteQuietly(spotDlDir)
                 throw SpotDLException("Error extracting spotdl files", e)
             }
         }
@@ -234,26 +221,32 @@ open class SpotDL {
     }
 
     fun destroyProcessById(id: String, forceProcessDestroy: Boolean = false): Boolean {
+        // Logging for debugging purposes
         Log.d("SpotDL", "Destroying process $id")
         Log.d("SpotDL", "--------------------------------------")
-        Log.d( "SpotDL", "idProcessMap: $idProcessMap")
+        Log.d("SpotDL", "idProcessMap: $idProcessMap")
         Log.d("SpotDL", "--------------------------------------")
-        Log.d( "SpotDL", "Does the map contain the id? ${idProcessMap.containsKey(id)}")
+        Log.d("SpotDL", "Does the map contain the id? ${idProcessMap.containsKey(id)}")
 
-        if (idProcessMap.containsKey(id)) {
-            val p = idProcessMap[id]
+        val p = idProcessMap[id]
+        if (p != null) {
             var alive = true
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                alive = p!!.isAlive
+                alive = p.isAlive
             }
             if (alive) {
-                if (forceProcessDestroy && Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    p!!.destroyForcibly()
-                } else {
-                    p!!.destroy()
+                try {
+                    if (forceProcessDestroy && Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                        p.destroyForcibly()
+                    } else {
+                        p.destroy()
+                    }
+                    idProcessMap.remove(id)
+                    return true
+                } catch (e: Exception) {
+                    // Handle any exceptions that might occur during process destruction
+                    Log.e("SpotDL", "Failed to destroy process $id: ${e.message}")
                 }
-                idProcessMap.remove(id)
-                return true
             }
         }
         return false
@@ -286,16 +279,12 @@ open class SpotDL {
         assertInit()
         //Check if the process ID already exists or not.
         if (processId != null && idProcessMap.containsKey(processId)) throw SpotDLException("Process ID already exists! Change the process ID and retry.")
-        // disable caching unless it is explicitly requested
-        if (!request.hasOption("--cache-path") || request.getOption("--cache-path") == null) {
-            request.addOption("--no-cache")
-        }
 
         request.addOption("--ffmpeg", ffmpegPath!!.absolutePath)
 
         val spotDLResponse: SpotDLResponse
         val process: Process
-        var exitCode = 0
+        val exitCode: Int
 
         val outBuffer = StringBuffer() //stdout
 
@@ -371,13 +360,13 @@ open class SpotDL {
 
         //Delete ANSI (cleaner output)
         val outClean = out.replace(
-            "(?:\\x1B[@-Z\\\\-_]|[\\x80-\\x9A\\x9C-\\x9F]|(?:\\x1B\\[|\\x9B)[0-?]*[ -/]*[@-~])".toRegex(),
-            ""
+            regex = ansiCleaner,
+            replacement = ""
         )
         //Cleaner output
         val errClean = err.replace(
-            "(?:\\x1B[@-Z\\\\-_]|[\\x80-\\x9A\\x9C-\\x9F]|(?:\\x1B\\[|\\x9B)[0-?]*[ -/]*[@-~])".toRegex(),
-            ""
+            regex = ansiCleaner,
+            replacement = ""
         )
 
         if (exitCode > 0) {
@@ -422,7 +411,7 @@ open class SpotDL {
     }
 
     @Throws(SpotDLException::class, InterruptedException::class, CanceledException::class)
-    fun getSongInfo(url: String, isPlaylist: Boolean = false): List<Song> {
+    fun getSongInfo(url: String, songId: String = UUID.randomUUID().toString()): List<Song> {
         assertInit()
         //Make sure that the path exists
         val metadataDirectory = File("$HOME/.spotdl/meta_info/")
@@ -432,28 +421,25 @@ open class SpotDL {
         }
 
         //UUID for song identification
-        val songId = UUID.randomUUID().toString()
         val request = SpotDLRequest()
         request.addOption("save", url)
         request.addOption("--save-file", "$HOME/.spotdl/meta_info/$songId.spotdl")
         execute(request, null, null)
 
-        val songInfo: List<Song>
+        val songInfo: List<Song>?
         try {
             //get the song info from the file with the songId and deserialize it
             val file = File("$HOME/.spotdl/meta_info/$songId.spotdl")
             val builder = StringBuilder()
 
             file.forEachLine { builder.append(it) }
-            songInfo = jsonUnknownAllower.decodeFromString(
+            songInfo = json.decodeFromString(
                 ListSerializer(Song.serializer()),
                 builder.toString()
             )
         } catch (e: Exception) {
             throw SpotDLException("Error parsing song info", e)
         }
-
-        if (songInfo == null) throw SpotDLException("Failed fetching song info. Song info is null")
 
         return songInfo
     }
