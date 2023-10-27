@@ -52,7 +52,7 @@ afterEvaluate{
             create<MavenPublication>("maven") {
                 groupId = "com.github.bobbyesp"
                 artifactId = "spotdl-android-ffmpeg"
-                version = "0.2.0"
+                version = "0.2.2"
 
                 from(components["release"])
             }
