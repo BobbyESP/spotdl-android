@@ -3,7 +3,7 @@ pluginManagement {
         gradlePluginPortal()
         google()
         mavenCentral()
-        maven { url 'https://jitpack.io' }
+        maven("https://jitpack.io")
     }
 }
 dependencyResolutionManagement {
@@ -11,11 +11,12 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
-        maven { url 'https://jitpack.io' }
+        maven("https://jitpack.io")
     }
 }
+
 rootProject.name = "spotdl-android"
-include ':app'
-include ':library'
-include ':commonUtilities'
-include ':ffmpeg'
+include(":app")
+include(":library")
+include(":commonUtilities")
+include(":ffmpeg")

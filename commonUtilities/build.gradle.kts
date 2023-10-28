@@ -41,17 +41,3 @@ dependencies {
     implementation(libs.commons.io)
     implementation(libs.commons.compress)
 }
-
-afterEvaluate{
-    publishing {
-        publications {
-            create<MavenPublication>("maven") {
-                groupId = "com.github.bobbyesp"
-                artifactId = "spotdl-android-commonUtilities"
-                version = "0.2.2"
-
-                from(components["release"])
-            }
-        }
-    }
-}
