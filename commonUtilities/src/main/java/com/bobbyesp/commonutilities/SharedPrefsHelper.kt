@@ -5,7 +5,7 @@ import android.content.Context
 class SharedPrefsHelper {
 
     companion object {
-        private val sharedPrefsName = "spotdl-android"
+        private const val sharedPrefsName = "spotdl-android"
 
         fun update(appContext: Context, key: String?, value: String?) {
             val pref = appContext.getSharedPreferences(sharedPrefsName, Context.MODE_PRIVATE)

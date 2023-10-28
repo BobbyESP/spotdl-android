@@ -14,15 +14,6 @@ open class SpotDLRequest(url: String? = null, urls: List<String>? = null) {
     private var options = SpotDLOptions()
     private var customCommandList = ArrayList<String>()
 
-    constructor(url: String) : this() {
-        this.urls = listOf(url)
-    }
-
-    constructor(urls: List<String>) : this() {
-        this.urls = urls
-    }
-
-
     open fun addOption(option: String, argument: String): SpotDLRequest {
         options.addOption(option, argument)
         return this
@@ -58,7 +49,7 @@ open class SpotDLRequest(url: String? = null, urls: List<String>? = null) {
     }
 
     fun buildCommand(): List<String> {
-        var finalCommandList = ArrayList<String>()
+        val finalCommandList = ArrayList<String>()
         finalCommandList.addAll(options.buildOptions())
         finalCommandList.addAll(urls)
         if(BuildConfig.DEBUG) Log.d("SpotDLRequest", urls.toString())
