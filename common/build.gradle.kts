@@ -7,7 +7,7 @@ plugins {
 val versionName = rootProject.extra["versionName"] as String
 
 android {
-    namespace = "com.bobbyesp.common"
+    namespace = "com.bobbyesp.spotdl_common"
     compileSdk = 34
 
     defaultConfig {
@@ -50,7 +50,7 @@ afterEvaluate{
             create<MavenPublication>("maven") {
                 from(components["release"])
                 groupId = "com.github.bobbyesp"
-                artifactId = "common"
+                artifactId = "spotdl_common"
                 version = versionName
             }
         }

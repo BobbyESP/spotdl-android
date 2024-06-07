@@ -1,4 +1,4 @@
-package com.bobbyesp.commonutilities
+package com.bobbyesp.spotdl_common
 
 import android.content.Context
 

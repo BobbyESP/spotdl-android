@@ -1,4 +1,4 @@
-package com.bobbyesp.commonutilities.utils
+package com.bobbyesp.spotdl_common.utils
 
 import android.system.ErrnoException
 import android.system.Os
