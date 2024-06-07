@@ -1,6 +1,7 @@
-package com.bobbyesp.library
+package com.bobbyesp.library.data.local.streams
 
 import android.util.Log
+import com.bobbyesp.library.BuildConfig
 import java.io.BufferedReader
 import java.io.IOException
 import java.io.InputStream
@@ -11,7 +12,7 @@ import java.util.regex.Matcher
 import java.util.regex.Pattern
 
 internal class StreamProcessExtractor(
-    private val buffer: StringBuffer,
+    private val buffer: StringBuilder,
     private val stream: InputStream,
     private val callback: ((Float, Long, String) -> Unit)? = null
 ) : Thread() {

@@ -1,9 +1,9 @@
-package com.bobbyesp.library.dto
+package com.bobbyesp.library.domain.model
 
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class Song(
+data class SpotifySong(
     val name: String = "",
     val artists: List<String> = listOf(),
     val artist: String = "",
@@ -25,21 +25,21 @@ data class Song(
     val cover_url: String = "",
     val copyright_text: String? = "",
     val download_url: String? = null,
-    val song_list: SongList? = null,
+    val song_list: SpotifyPlaylist? = null,
     val list_position: Int? = null,
     val lyrics: String? = null,
     val album_id: String? = null,
 )
 
 @Serializable
-data class SongList(
+data class SpotifyPlaylist(
     val name: String = "",
     val url: String = "",
     val urls: List<String> = listOf(),
-    val songs: List<Song> = listOf(),
+    val spotifySongs: List<SpotifySong> = listOf(),
     val genres: List<String>? = listOf(),
     val albums: List<String>? = listOf(),
-    val artist: ArtistSongInfo = ArtistSongInfo(),
+    val artist: SpotifyArtist = SpotifyArtist(),
     val description: String = "",
     val author_url: String = "",
     val author_name: String = "",
@@ -47,7 +47,7 @@ data class SongList(
 )
 
 @Serializable
-data class ArtistSongInfo(
+data class SpotifyArtist(
     val external_urls: Map<String, String> = emptyMap(),
     val href: String = "",
     val id: String = "",
@@ -55,8 +55,3 @@ data class ArtistSongInfo(
     val type: String = "",
     val uri: String = ""
 )
-
-//Q: How I can make this val nullable?  val genres: List<String>? = listOf(),
-//A: You can use the nullable type List<String>? = listOf() or the non-nullable type List<String> = listOf() with a default value of null.
-
-//Q: The parser tells me that the field is not nullable, but I know that it is. What should I do?

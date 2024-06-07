@@ -1,4 +1,4 @@
-package com.bobbyesp.library
+package com.bobbyesp.library.util.exceptions
 
 class SpotDLException : Exception {
     constructor(message: String?) : super(message) {}

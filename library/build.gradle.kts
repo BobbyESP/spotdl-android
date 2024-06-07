@@ -42,9 +42,9 @@ android {
 
 dependencies {
     implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
+    implementation(project(":common"))
     implementation(libs.core.ktx)
     implementation(libs.bundles.coroutines)
-    implementation(project(":common"))
 
     implementation(libs.okhttp)
 
@@ -64,7 +64,7 @@ afterEvaluate{
             create<MavenPublication>("maven") {
                 from(components["release"])
 
-                groupId = "com.github.bobbyesp"
+                groupId = "com.github.BobbyESP.spotdl_android"
                 artifactId = "library"
                 version = versionName
             }

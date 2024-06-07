@@ -3,16 +3,13 @@ package com.bobbyesp.spotdl_android.ui.pages.home
 import android.content.Intent
 import android.net.Uri
 import android.os.Environment
-import android.os.Looper
 import android.util.Log
 import android.widget.Toast
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.core.content.FileProvider
 import androidx.lifecycle.ViewModel
 import com.bobbyesp.library.SpotDL
 import com.bobbyesp.library.SpotDLRequest
-import com.bobbyesp.library.dto.Song
-import com.bobbyesp.spotdl_android.App
+import com.bobbyesp.library.domain.model.SpotifySong
 import com.bobbyesp.spotdl_android.App.Companion.applicationScope
 import com.bobbyesp.spotdl_android.App.Companion.context
 import com.bobbyesp.spotdl_android.BuildConfig
@@ -24,7 +21,6 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.io.File
-import java.util.*
 import javax.inject.Inject
 
 @HiltViewModel
@@ -78,13 +74,12 @@ class HomeViewModel @Inject constructor() : ViewModel() {
                         Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
                         "spotdl"
                     )
-                    Toast.makeText(context, "Getting song info...", Toast.LENGTH_SHORT).show()
 
                     //Request song info
                     val songInfo = SpotDL.getInstance().getSongInfo(link)
 
                     mutableTaskState.update {
-                        it.copy(songInfo = songInfo)
+                        it.copy(spotifySongInfo = songInfo)
                     }
 
                     val request = SpotDLRequest()
@@ -99,12 +94,8 @@ class HomeViewModel @Inject constructor() : ViewModel() {
                     //Print every command
                     for (s in request.buildCommand()) Log.d(TAG, s)
 
-                    Toast.makeText(context, "Downloading...", Toast.LENGTH_SHORT).show()
-
                     SpotDL.getInstance()
                         .execute(request, processId, progressCallback)
-
-                    Toast.makeText(context, "Downloaded!", Toast.LENGTH_SHORT).show()
 
                     cleanUpDownload()
                 } catch (e: Exception) {
@@ -125,8 +116,8 @@ class HomeViewModel @Inject constructor() : ViewModel() {
             Log.d("MainActivity", "Error cancelling download. ${e.message}")
         }
     }
-    fun requestSongInfo(url: String): List<Song> {
-        var info: List<Song> = emptyList()
+    fun requestSongInfo(url: String): List<SpotifySong> {
+        var info: List<SpotifySong> = emptyList()
         currentJob?.cancel()
         currentJob = applicationScope.launch {
             kotlin.runCatching {
@@ -138,7 +129,7 @@ class HomeViewModel @Inject constructor() : ViewModel() {
                     Log.i(TAG, songInfo.toString())
                     info = songInfo
                     mutableTaskState.update {
-                        it.copy(songInfo = info, isDownloading = false)
+                        it.copy(spotifySongInfo = info, isDownloading = false)
                     }
                 } catch (e: Exception) {
                     e.printStackTrace()

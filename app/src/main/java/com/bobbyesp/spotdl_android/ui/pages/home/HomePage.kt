@@ -4,6 +4,7 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
@@ -12,8 +13,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Download
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MediumTopAppBar
@@ -38,6 +43,7 @@ import com.bobbyesp.spotdl_android.ui.StateHolder
 import com.bobbyesp.spotdl_android.ui.components.ClearButton
 import com.bobbyesp.spotdl_android.ui.components.SongCard
 import com.bobbyesp.spotdl_android.ui.components.SongInfo
+import kotlinx.coroutines.flow.update
 
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
@@ -55,6 +61,31 @@ fun HomePage(
                 title = { Text(stringResource(R.string.app_name)) },
                 modifier = Modifier.padding(horizontal = 8.dp)
             )
+        }, floatingActionButton = {
+            FloatingActionButton(
+                onClick = {
+                    StateHolder.mutableTaskState.update {
+                        it.copy(url = text)
+                    }
+                    homeViewModel.downloadSong(text) { progress, _, line ->
+                        //Divide the progress by 100 to get a value between 0 and 1
+                        StateHolder.mutableTaskState.update {
+                            it.copy(progress = progress, progressText = line)
+                        }
+                    }
+                }
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Rounded.Download,
+                        contentDescription = "Download"
+                    )
+                    Text(text = "Download", style = MaterialTheme.typography.bodyMedium)
+                }
+            }
         }) {
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
@@ -119,37 +150,37 @@ fun HomePage(
             }
 
             item {
-                AnimatedVisibility(visible = taskState.songInfo.isNotEmpty()) {
-                    if (taskState.songInfo.isNotEmpty()) {
+                AnimatedVisibility(visible = taskState.spotifySongInfo.isNotEmpty()) {
+                    if (taskState.spotifySongInfo.isNotEmpty()) {
                         Column {
-                            if (taskState.songInfo.size > 1) {
+                            if (taskState.spotifySongInfo.size > 1) {
                                 Text(
-                                    text = taskState.songInfo.size.toString() + " songs found. Showing the first one.",
+                                    text = taskState.spotifySongInfo.size.toString() + " songs found. Showing the first one.",
                                     style = MaterialTheme.typography.titleMedium,
                                     fontWeight = FontWeight.Bold,
                                     modifier = Modifier.padding(top = 8.dp, bottom = 8.dp)
                                 )
                             }
                             SongCard(
-                                song = taskState.songInfo[0],
+                                spotifySong = taskState.spotifySongInfo[0],
                                 progress = taskState.progress,
                                 modifier = Modifier.padding(top = 16.dp, bottom = 16.dp),
-                                isLyrics = taskState.songInfo[0].lyrics?.isNotEmpty()
+                                isLyrics = taskState.spotifySongInfo[0].lyrics?.isNotEmpty()
                                     ?: false,
-                                isExplicit = taskState.songInfo[0].explicit,
-                                onClick = { homeViewModel.openUrl(taskState.songInfo[0].url) }
+                                isExplicit = taskState.spotifySongInfo[0].explicit,
+                                onClick = { homeViewModel.openUrl(taskState.spotifySongInfo[0].url) }
                             )
                         }
                     }
                 }
             }
             item {
-                AnimatedVisibility(visible = taskState.songInfo.isNotEmpty()) {
+                AnimatedVisibility(visible = taskState.spotifySongInfo.isNotEmpty()) {
                     Column(
                         modifier = Modifier
                             .padding(top = 8.dp, bottom = 8.dp)
                     ) {
-                        SongInfo(songs = taskState.songInfo)
+                        SongInfo(spotifySongs = taskState.spotifySongInfo)
                         Spacer(modifier = Modifier.height(8.dp))
                     }
                 }

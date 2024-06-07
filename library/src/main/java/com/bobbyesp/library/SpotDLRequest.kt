@@ -1,29 +1,19 @@
 package com.bobbyesp.library
 
-import android.util.Log
-
-open class SpotDLRequest(url: String? = null, urls: List<String>? = null) {
-
-    companion object {
-        fun getInstance(): SpotDLUpdater {
-            return SpotDLUpdater()
-        }
-    }
-
-    private var urls: List<String> = listOf()
+class SpotDLRequest {
+    private var urls: List<String> = emptyList()
     private var options = SpotDLOptions()
-    private var customCommandList = ArrayList<String>()
+    private var customCommandList: MutableList<String> = ArrayList()
 
-    open fun addOption(option: String, argument: String): SpotDLRequest {
+    fun addOption(option: String, argument: String): SpotDLRequest {
         options.addOption(option, argument)
         return this
     }
 
-    open fun addOption(option: String, argument: Number): SpotDLRequest {
+    fun addOption(option: String, argument: Number): SpotDLRequest {
         options.addOption(option, argument)
         return this
     }
-
 
     fun addOption(option: String): SpotDLRequest {
         options.addOption(option)
@@ -35,13 +25,12 @@ open class SpotDLRequest(url: String? = null, urls: List<String>? = null) {
         return this
     }
 
-
-    fun getOption(option: String): String {
-        return options.getArgument(option) ?: ""
+    fun getOption(option: String): String? {
+        return options.getArgument(option)
     }
 
-    fun getArguments(option: String): List<String> {
-        return options.getArguments(option) ?: listOf()
+    fun getArguments(option: String): List<String?>? {
+        return options.getArguments(option)
     }
 
     fun hasOption(option: String): Boolean {
@@ -49,12 +38,11 @@ open class SpotDLRequest(url: String? = null, urls: List<String>? = null) {
     }
 
     fun buildCommand(): List<String> {
-        val finalCommandList = ArrayList<String>()
-        finalCommandList.addAll(options.buildOptions())
-        finalCommandList.addAll(urls)
-        if(BuildConfig.DEBUG) Log.d("SpotDLRequest", urls.toString())
-        if(BuildConfig.DEBUG) Log.d("SpotDLRequest", "Commands: $finalCommandList")
-        return finalCommandList
+        val commandList: MutableList<String> = ArrayList()
+        commandList.addAll(options.buildOptions())
+        commandList.addAll(customCommandList)
+        commandList.addAll(urls)
+        return commandList
     }
 
 }

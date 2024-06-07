@@ -1,68 +1,64 @@
 package com.bobbyesp.library
 
-open class SpotDLOptions {
+import kotlin.collections.component1
+import kotlin.collections.component2
+import kotlin.collections.set
 
+class SpotDLOptions {
     private val options: MutableMap<String, MutableList<String>> = LinkedHashMap()
-
-    open fun addOption(option: String, argument: String): SpotDLOptions {
+    fun addOption(option: String, argument: String): SpotDLOptions {
         if (!options.containsKey(option)) {
-            val arguments = ArrayList<String>()
+            val arguments: MutableList<String> = ArrayList()
             arguments.add(argument)
             options[option] = arguments
         } else {
-            options[option]?.add(argument)
+            options[option]!!.add(argument)
         }
         return this
     }
 
-
-    open fun addOption( option: String, argument: Number): SpotDLOptions {
+    fun addOption(option: String, argument: Number): SpotDLOptions {
         if (!options.containsKey(option)) {
-            val arguments = ArrayList<String>()
+            val arguments: MutableList<String> = ArrayList()
             arguments.add(argument.toString())
             options[option] = arguments
         } else {
-            options[option]?.add(argument.toString())
+            options[option]!!.add(argument.toString())
         }
         return this
     }
 
-    open fun addOption(option: String): SpotDLOptions {
+    fun addOption(option: String): SpotDLOptions {
         if (!options.containsKey(option)) {
-            val arguments = ArrayList<String>()
+            val arguments: MutableList<String> = ArrayList()
             arguments.add("")
             options[option] = arguments
         } else {
-            options[option]?.add("")
+            options[option]!!.add("")
         }
         return this
     }
 
-
-    open fun getArgument(option: String): String? {
+    fun getArgument(option: String): String? {
         if (!options.containsKey(option)) return null
-        val argument = options[option]?.get(0) ?: return null
-        return if (argument.isEmpty()) null else argument
+        val argument = options[option]!![0]
+        return argument.ifEmpty { null }
     }
 
-
-    open fun getArguments(option: String): List<String>? {
+    fun getArguments(option: String): List<String>? {
         return if (!options.containsKey(option)) null else options[option]
     }
 
-    open fun hasOption(option: String?): Boolean {
+    fun hasOption(option: String): Boolean {
         return options.containsKey(option)
     }
 
-    open fun buildOptions(): List<String> {
-        val commandList = ArrayList<String>()
-        for (entry in options.entries) {
-            val option = entry.key
-            for (argument in entry.value) {
+    fun buildOptions(): List<String> {
+        val commandList: MutableList<String> = mutableListOf()
+        for ((option, value) in options) {
+            for (argument in value) {
                 commandList.add(option)
-                if (argument.isNotEmpty()) {
-                    commandList.add(argument)
-                }
+                if (argument.isNotEmpty()) commandList.add(argument)
             }
         }
         return commandList

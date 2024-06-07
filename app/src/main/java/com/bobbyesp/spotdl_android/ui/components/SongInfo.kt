@@ -36,7 +36,7 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.bobbyesp.library.dto.Song
+import com.bobbyesp.library.domain.model.SpotifySong
 import com.bobbyesp.spotdl_android.ui.common.AsyncImageImpl
 import com.bobbyesp.spotdl_android.utils.GeneralUtils
 
@@ -45,7 +45,7 @@ import com.bobbyesp.spotdl_android.utils.GeneralUtils
 fun SongInfo(
     modifier: Modifier = Modifier,
     expanded: Boolean = false,
-    songs: List<Song>
+    spotifySongs: List<SpotifySong>
 ) {
     //mutable state of expanded
     val expandedState = remember { mutableStateOf(expanded) }
@@ -126,7 +126,7 @@ fun SongInfo(
                 ) {
                     LazyColumn {
                         item {
-                            if (songs[0].song_list != null) {
+                            if (spotifySongs[0].song_list != null) {
                                 ElevatedCard(
                                     modifier = Modifier
                                         .fillMaxWidth()
@@ -139,7 +139,7 @@ fun SongInfo(
                                             modifier = Modifier.fillMaxWidth(),
                                             verticalAlignment = Alignment.CenterVertically
                                         ) {
-                                            songs[0].song_list?.cover_url?.let {
+                                            spotifySongs[0].song_list?.cover_url?.let {
                                                 AsyncImageImpl(
                                                     modifier = Modifier
                                                         .padding(16.dp)
@@ -156,13 +156,13 @@ fun SongInfo(
                                             }
                                             Column() {
                                                 Text(
-                                                    text = songs[0].song_list?.name ?: "Unknown",
+                                                    text = spotifySongs[0].song_list?.name ?: "Unknown",
                                                     fontWeight = FontWeight.Bold,
                                                     style = MaterialTheme.typography.titleLarge
                                                 )
                                                 Spacer(modifier = Modifier.height(6.dp))
                                                 Text(
-                                                    text = songs[0].song_list?.author_name
+                                                    text = spotifySongs[0].song_list?.author_name
                                                         ?: "Unknown",
                                                     style = MaterialTheme.typography.bodyLarge,
                                                     modifier = Modifier.alpha(alpha = 0.8f)
@@ -174,7 +174,7 @@ fun SongInfo(
                                 }
 
                                 Text(
-                                    text = "Playlist with ${songs.size} songs",
+                                    text = "Playlist with ${spotifySongs.size} songs",
                                     modifier = Modifier.padding(6.dp),
                                     fontWeight = FontWeight.Bold,
                                     style = MaterialTheme.typography.titleLarge
@@ -182,9 +182,9 @@ fun SongInfo(
                             }
                         }
                         items(
-                            items = songs,
+                            items = spotifySongs,
                         ) { song ->
-                            if (songs[0].song_list == null) {
+                            if (spotifySongs[0].song_list == null) {
                                 MetadataInfo(type = "Song name", value = song.name)
                                 MetadataInfo(
                                     type = "Song artists",

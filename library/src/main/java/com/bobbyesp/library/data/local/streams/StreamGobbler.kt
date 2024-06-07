@@ -1,11 +1,12 @@
-package com.bobbyesp.library
+package com.bobbyesp.library.data.local.streams
 
 import android.util.Log
+import com.bobbyesp.library.BuildConfig
 import java.io.*
 import java.nio.charset.StandardCharsets
 
 
-internal class StreamGobbler(private val buffer: StringBuffer, private val stream: InputStream) :
+internal class StreamGobbler(private val buffer: StringBuilder, private val stream: InputStream) :
     Thread() {
     init {
         start()

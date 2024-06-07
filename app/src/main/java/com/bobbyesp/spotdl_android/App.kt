@@ -25,11 +25,10 @@ class App : Application() {
         MMKV.initialize(this)
         context = applicationContext
         applicationScope = CoroutineScope(SupervisorJob())
-        val SpotDLInstance = SpotDL.getInstance()
         applicationScope.launch((Dispatchers.IO)) {
             try {
-                SpotDLInstance.init(this@App)
-                FFmpeg.getInstance().init(this@App)
+                SpotDL.init(this@App)
+                FFmpeg.init(this@App)
             } catch (e: Exception) {
                 e.printStackTrace()
                 Log.d("SpotDL", "Error initializing SpotDL. ${e.message}")

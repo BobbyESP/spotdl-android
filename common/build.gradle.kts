@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.androidLibrary)
     alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.kotlin.serialization)
     id("maven-publish")
 }
 
@@ -42,6 +43,8 @@ dependencies {
     implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
     implementation(libs.commons.io)
     implementation(libs.commons.compress)
+    implementation(libs.bundles.ktor)
+    implementation(libs.kotlin.serialization.json)
 }
 
 afterEvaluate{
@@ -49,8 +52,8 @@ afterEvaluate{
         publications {
             create<MavenPublication>("maven") {
                 from(components["release"])
-                groupId = "com.github.bobbyesp"
-                artifactId = "spotdl_common"
+                groupId = "com.github.BobbyESP.spotdl_android"
+                artifactId = "common"
                 version = versionName
             }
         }

@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -28,24 +27,22 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.bobbyesp.library.dto.Song
+import com.bobbyesp.library.domain.model.SpotifySong
 import com.bobbyesp.spotdl_android.ui.common.AsyncImageImpl
 import com.bobbyesp.spotdl_android.ui.components.songs.ExplicitIcon
 import com.bobbyesp.spotdl_android.ui.components.songs.LyricsIcon
 import com.bobbyesp.spotdl_android.ui.components.text.MarqueeText
-import com.bobbyesp.spotdl_android.utils.GeneralUtils
 import com.bobbyesp.spotdl_android.utils.GeneralUtils.convertDuration
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SongCard(
-    song: Song,
+    spotifySong: SpotifySong,
     onClick: () -> Unit = {},
     progress: Float = 0.69f,
     isPreview: Boolean = false,
@@ -72,7 +69,7 @@ fun SongCard(
                             .size(84.dp)
                             .aspectRatio(1f, matchHeightConstraintsFirst = true)
                             .clip(MaterialTheme.shapes.small),
-                        model = song.cover_url,
+                        model = spotifySong.cover_url,
                         contentDescription = "Song cover",
                         contentScale = ContentScale.Crop,
                         isPreview = isPreview
@@ -92,7 +89,7 @@ fun SongCard(
                                 horizontalArrangement = Arrangement.Center
                             ) {
                                 MarqueeText(
-                                    text = song.name, color = MaterialTheme.colorScheme.onSurface,
+                                    text = spotifySong.name, color = MaterialTheme.colorScheme.onSurface,
                                     maxLines = 1,
                                     overflow = TextOverflow.Ellipsis,
                                     fontSize = 16.sp,
@@ -110,7 +107,7 @@ fun SongCard(
                             }
                             Spacer(Modifier.height(8.dp))
                             MarqueeText(
-                                text = song.artist,
+                                text = spotifySong.artist,
                                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f),
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis,
@@ -135,7 +132,7 @@ fun SongCard(
                                 )
                                 {
                                     Text(
-                                        text = convertDuration(song.duration),
+                                        text = convertDuration(spotifySong.duration),
                                         style = MaterialTheme.typography.bodySmall,
                                         color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f),
                                         fontWeight = FontWeight.Bold,
@@ -179,7 +176,7 @@ fun SongCard(
 fun showSongCard() {
     Surface {
         SongCard(
-            Song(
+            SpotifySong(
                 "Save Your Tears",
                 listOf("sangiovanni"),
                 "The Weeknd",
@@ -218,7 +215,7 @@ fun showSongCard() {
 fun showSongCardNight() {
     Surface {
         SongCard(
-            Song(
+            SpotifySong(
                 "mariposas",
                 listOf("sangiovanni"),
                 "sangiovanni",

@@ -1,6 +1,6 @@
 package com.bobbyesp.spotdl_android.ui
 
-import com.bobbyesp.library.dto.Song
+import com.bobbyesp.library.domain.model.SpotifySong
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
@@ -14,7 +14,7 @@ object StateHolder {
         val title: String = "",
         val progress: Float = 0f,
         val progressText: String = "Working...",
-        val songInfo: List<Song> = emptyList(),
+        val spotifySongInfo: List<SpotifySong> = emptyList(),
         val isDownloading: Boolean = false,
         val url : String = "",
     )

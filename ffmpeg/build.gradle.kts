@@ -53,7 +53,7 @@ afterEvaluate{
         publications {
             create<MavenPublication>("maven") {
                 from(components["release"])
-                groupId = "com.github.bobbyesp"
+                groupId = "com.github.BobbyESP.spotdl_android"
                 artifactId = "ffmpeg"
                 version = versionName
             }
