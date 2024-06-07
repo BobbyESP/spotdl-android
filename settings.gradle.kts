@@ -18,5 +18,5 @@ dependencyResolutionManagement {
 rootProject.name = "spotdl-android"
 include(":app")
 include(":library")
-include(":commonUtilities")
+include(":common")
 include(":ffmpeg")

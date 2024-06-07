@@ -4,41 +4,10 @@ plugins {
     alias(libs.plugins.kotlin.ksp)
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.kotlin.parcelize)
+    alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.hilt)
     kotlin("kapt")
 }
-
-sealed class Version(
-    open val versionMajor: Int,
-    val versionMinor: Int,
-    val versionPatch: Int,
-    val versionBuild: Int = 0
-) {
-    abstract fun toVersionName(): String
-    class Beta(versionMajor: Int, versionMinor: Int, versionPatch: Int, versionBuild: Int) :
-        Version(versionMajor, versionMinor, versionPatch, versionBuild) {
-        override fun toVersionName(): String =
-            "${versionMajor}.${versionMinor}.${versionPatch}-beta.$versionBuild"
-    }
-
-    class Stable(versionMajor: Int, versionMinor: Int, versionPatch: Int) :
-        Version(versionMajor, versionMinor, versionPatch) {
-        override fun toVersionName(): String = "${versionMajor}.${versionMinor}.${versionPatch}"
-    }
-
-    class ReleaseCandidate(
-        versionMajor: Int, versionMinor: Int, versionPatch: Int, versionBuild: Int
-    ) : Version(versionMajor, versionMinor, versionPatch, versionBuild) {
-        override fun toVersionName(): String =
-            "${versionMajor}.${versionMinor}.${versionPatch}-rc.$versionBuild"
-    }
-}
-
-val currentVersion: Version = Version.Stable(
-    versionMajor = 2,
-    versionMinor = 0,
-    versionPatch = 0,
-)
 
 val splitApks = !project.hasProperty("noSplits")
 
@@ -50,11 +19,8 @@ android {
         applicationId = "com.bobbyesp.spotdl_android"
         minSdk = 24
         targetSdk = 34
-        versionCode = currentVersion.run {
-            versionMajor * 10000 + versionMinor * 1000 + versionPatch * 100 + versionBuild
-        }
-
-        versionName = currentVersion.toVersionName()
+        versionCode = rootProject.extra["versionCode"] as Int
+        versionName = rootProject.extra["versionName"] as String
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -122,15 +88,12 @@ android {
     applicationVariants.all {
         outputs.all {
             (this as com.android.build.gradle.internal.api.BaseVariantOutputImpl).outputFileName =
-                "Spowlo-${defaultConfig.versionName}-${name}.apk"
+                "SpotDL-${defaultConfig.versionName}-${name}.apk"
         }
     }
 
     kotlinOptions {
         freeCompilerArgs = freeCompilerArgs + "-opt-in=kotlin.RequiresOptIn"
-    }
-    composeOptions {
-        kotlinCompilerExtensionVersion = libs.versions.compose.compiler.get()
     }
 
     packaging {
@@ -148,56 +111,26 @@ dependencies {
     implementation(libs.bundles.core)
 
     //Material UI, Accompanist...
-    implementation(platform(libs.compose.bom))
+    api(platform(libs.compose.bom))
     implementation(libs.bundles.compose)
     implementation(libs.bundles.accompanist)
     implementation(libs.material)
-    implementation(libs.bundles.pagination)
 
     //Coil (For Jetpack Compose)
     implementation(libs.compose.coil)
 
     //Serialization
     implementation(libs.kotlin.serialization.json)
-    implementation(libs.kotlin.datetime)
 
     //DI (Dependency Injection - Hilt)
     implementation(libs.bundles.hilt)
     kapt(libs.bundles.hilt.kapt)
 
-    //Database powered by Room
-    implementation(libs.room.runtime)
-    implementation(libs.room.ktx)
-    implementation(libs.room.paging)
-    ksp(libs.room.compiler)
-
-    //Datastore (Preferences)
-    implementation(libs.datastore.preferences)
-
-    //Networking
-    implementation(libs.bundles.ktor)
-
-    //MMKV (Key-Value storage)
     implementation(libs.mmkv)
 
     //Spotify downloader
     implementation(project(":library"))
     implementation(project(":ffmpeg"))
-
-    //Chrome Custom Tabs
-    implementation(libs.chrome.custom.tabs)
-
-    //MD Parser
-    implementation(libs.markdown)
-
-    //Shimmer
-    implementation(libs.shimmer)
-
-    //BottomSheets
-    implementation(libs.modalBottomSheet)
-
-    //Metadata editor
-    implementation(libs.metadata.manager)
 
     //Compose testing libs
     implementation(libs.compose.tooling.preview)

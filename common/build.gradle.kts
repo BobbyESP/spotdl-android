@@ -4,8 +4,10 @@ plugins {
     id("maven-publish")
 }
 
+val versionName = rootProject.extra["versionName"] as String
+
 android {
-    namespace = "com.bobbyesp.commonutilities"
+    namespace = "com.bobbyesp.common"
     compileSdk = 34
 
     defaultConfig {
@@ -40,4 +42,17 @@ dependencies {
     implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
     implementation(libs.commons.io)
     implementation(libs.commons.compress)
+}
+
+afterEvaluate{
+    publishing {
+        publications {
+            create<MavenPublication>("maven") {
+                from(components["release"])
+                groupId = "com.github.bobbyesp"
+                artifactId = "common"
+                version = versionName
+            }
+        }
+    }
 }

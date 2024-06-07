@@ -6,6 +6,8 @@ plugins {
     id("maven-publish")
 }
 
+val versionName = rootProject.extra["versionName"] as String
+
 android {
     namespace = "com.bobbyesp.library"
     compileSdk = 34
@@ -41,10 +43,9 @@ android {
 dependencies {
     implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
     implementation(libs.core.ktx)
-    implementation(libs.core.appcompat)
     implementation(libs.bundles.coroutines)
+    implementation(project(":common"))
 
-    implementation(project(":commonUtilities"))
     implementation(libs.okhttp)
 
     implementation(libs.commons.io)
@@ -64,8 +65,8 @@ afterEvaluate{
                 from(components["release"])
 
                 groupId = "com.github.bobbyesp"
-                artifactId = "spotdl-android-library"
-                version = "0.2.2"
+                artifactId = "library"
+                version = versionName
             }
         }
     }

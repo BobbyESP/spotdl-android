@@ -4,6 +4,8 @@ plugins {
     id("maven-publish")
 }
 
+val versionName = rootProject.extra["versionName"] as String
+
 android {
     namespace = "com.bobbyesp.ffmpeg"
     compileSdk = 34
@@ -42,7 +44,7 @@ dependencies {
 
     implementation(libs.core.ktx)
     implementation(project(":library"))
-    implementation(project(":commonUtilities"))
+    implementation(project(":common"))
     implementation(libs.commons.io)
 }
 
@@ -52,9 +54,8 @@ afterEvaluate{
             create<MavenPublication>("maven") {
                 from(components["release"])
                 groupId = "com.github.bobbyesp"
-                artifactId = "spotdl-android-ffmpeg"
-                version = "0.2.2"
-
+                artifactId = "ffmpeg"
+                version = versionName
             }
         }
     }

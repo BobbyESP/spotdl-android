@@ -28,7 +28,6 @@ import java.util.*
 import javax.inject.Inject
 
 @HiltViewModel
-@OptIn(ExperimentalMaterial3Api::class)
 class HomeViewModel @Inject constructor() : ViewModel() {
     private var currentJob: Job? = null
 
@@ -43,13 +42,6 @@ class HomeViewModel @Inject constructor() : ViewModel() {
         currentJob = applicationScope.launch {
             mutableTaskState.update {
                 it.copy(progress = 0f)
-            }
-            //if a looper is not present, the app will crash so we need to create one and if it is present, we need to use it
-            val looper = if (Looper.myLooper() == null) {
-                Looper.prepare()
-                Looper.myLooper()
-            } else {
-                Looper.myLooper()
             }
             kotlin.runCatching {
                 try {
