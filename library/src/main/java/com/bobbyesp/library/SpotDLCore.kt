@@ -10,9 +10,11 @@ import com.bobbyesp.library.domain.UpdateStatus
 import com.bobbyesp.library.domain.model.SpotifySong
 import com.bobbyesp.library.util.exceptions.CanceledException
 import com.bobbyesp.library.util.exceptions.SpotDLException
+import com.bobbyesp.library.BuildConfig
 import com.bobbyesp.spotdl_common.Constants
 import com.bobbyesp.spotdl_common.Constants.LIBRARY_NAME
 import com.bobbyesp.spotdl_common.Constants.PACKAGES_ROOT_NAME
+import com.bobbyesp.spotdl_common.SharedPrefsHelper
 import com.bobbyesp.spotdl_common.domain.Dependency
 import com.bobbyesp.spotdl_common.domain.model.DownloadedDependencies
 import com.bobbyesp.spotdl_common.utils.dependencies.dependencyDownloadCallback
@@ -39,11 +41,13 @@ abstract class SpotDLCore {
     private lateinit var HOME: String
     private lateinit var LDFLAGS: String
 
+    private val pythonLibVersion = "pythonLibVersion"
+
     //Map of process id associated with the process
     protected open val idProcessMap: MutableMap<String, Process> =
         Collections.synchronizedMap(HashMap<String, Process>())
 
-    private val isDebug = BuildConfig.DEBUG
+    internal val isDebug = BuildConfig.DEBUG
 
     open fun init(context: Context) {
         if (initialized) return
@@ -75,7 +79,8 @@ abstract class SpotDLCore {
         LDFLAGS = "-L" + pythonDir.absolutePath + "/usr/lib -rdynamic"
 
         try {
-
+            initPython(context, pythonDir)
+            initSpotDL(context, spotdlDir)
         } catch (e: Exception) {
             throw SpotDLException("Error initializing SpotDLCore", e)
         }
@@ -271,4 +276,15 @@ abstract class SpotDLCore {
         check(initialized) { "The SpotDL instance is not initialized" }
     }
 
+    fun updatePython(appContext: Context, version: String) {
+        SharedPrefsHelper.update(
+            appContext,
+            pythonLibVersion,
+            version
+        )
+    }
+
+    fun shouldUpdatePython(appContext: Context, version: String): Boolean {
+        return version != SharedPrefsHelper[appContext, pythonLibVersion]
+    }
 }

@@ -87,7 +87,6 @@ object DependenciesUtil {
      * This method should be called before initialization.
      *
      * @param appContext The application context.
-     * @param skipAria2c A boolean flag indicating whether to ensure the Aria2c dependency.
      * If set to false, Aria2c will not be installed, being marked during the process as installed.
      * @param callback An optional callback function that will be invoked with the dependency and the progress of the download.
      * @return [DownloadedDependencies] The installed dependencies. If Aria2c was skipped, here will
@@ -152,7 +151,7 @@ object DependenciesUtil {
         dependency: Dependency,
         callback: dependencyDownloadCallback?
     ) {
-        if (BuildConfig.DEBUG) Log.i("YoutubeDL", "Downloading $dependency")
+        if (BuildConfig.DEBUG) Log.i("SpotDL", "Downloading $dependency")
         var lastProgress = 0
 
         val downloadFunction = when (dependency) {
@@ -170,7 +169,7 @@ object DependenciesUtil {
 
     //The dependency scheme is: [arch]_lib[dependencyName].zip.so
     private const val LATEST_RELEASE =
-        "https://api.github.com/repos/bobbyesp/youtubedl-android/releases/latest"
+        "https://api.github.com/repos/bobbyesp/spotdl-android/releases/latest"
 
     @Throws(Exception::class)
     suspend fun getRelease(releaseUrl: String = LATEST_RELEASE): Release? {

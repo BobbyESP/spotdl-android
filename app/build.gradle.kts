@@ -85,6 +85,17 @@ android {
         disable.addAll(listOf("MissingTranslation", "ExtraTranslation"))
     }
 
+    flavorDimensions.add("bundling")
+
+    productFlavors {
+        create("bundled") {
+            dimension = "bundling"
+        }
+        create("nonbundled") {
+            dimension = "bundling"
+        }
+    }
+
     applicationVariants.all {
         outputs.all {
             (this as com.android.build.gradle.internal.api.BaseVariantOutputImpl).outputFileName =

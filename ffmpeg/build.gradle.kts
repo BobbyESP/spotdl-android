@@ -17,6 +17,28 @@ android {
         consumerProguardFiles("consumer-rules.pro")
     }
 
+    flavorDimensions.add("bundling")
+
+    productFlavors {
+        create("bundled") {
+            dimension = "bundling"
+        }
+        create("nonbundled") {
+            dimension = "bundling"
+        }
+    }
+
+    sourceSets {
+        getByName("nonbundled") {
+            java.srcDir("src/nonbundled/java")
+            jniLibs.srcDirs("src/nonbundled/jniLibs")
+        }
+        getByName("bundled") {
+            java.srcDir("src/bundled/java")
+            jniLibs.srcDirs("src/bundled/jniLibs")
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = false
@@ -33,9 +55,18 @@ android {
     kotlinOptions {
         jvmTarget = "17"
     }
-
     buildFeatures {
         buildConfig = true
+    }
+    publishing {
+        singleVariant("bundledRelease") {
+            withSourcesJar()
+            withJavadocJar()
+        }
+        singleVariant("nonbundledRelease") {
+            withSourcesJar()
+            withJavadocJar()
+        }
     }
 }
 
@@ -48,14 +79,21 @@ dependencies {
     implementation(libs.commons.io)
 }
 
-afterEvaluate{
+afterEvaluate {
     publishing {
         publications {
-            create<MavenPublication>("maven") {
-                from(components["release"])
+            create<MavenPublication>("bundledRelease") {
+                from(components["bundledRelease"])
                 groupId = "com.github.BobbyESP.spotdl_android"
                 artifactId = "ffmpeg"
-                version = versionName
+                version = project.version.toString()
+            }
+
+            create<MavenPublication>("nonbundledRelease") {
+                from(components["nonbundledRelease"])
+                groupId = "com.github.BobbyESP.spotdl_android"
+                artifactId = "ffmpeg-nonbundled"
+                version = project.version.toString()
             }
         }
     }
