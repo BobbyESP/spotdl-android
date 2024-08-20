@@ -10,7 +10,6 @@ import com.bobbyesp.library.domain.UpdateStatus
 import com.bobbyesp.library.domain.model.SpotifySong
 import com.bobbyesp.library.util.exceptions.CanceledException
 import com.bobbyesp.library.util.exceptions.SpotDLException
-import com.bobbyesp.library.BuildConfig
 import com.bobbyesp.spotdl_common.Constants
 import com.bobbyesp.spotdl_common.Constants.LIBRARY_NAME
 import com.bobbyesp.spotdl_common.Constants.PACKAGES_ROOT_NAME
@@ -141,7 +140,7 @@ abstract class SpotDLCore {
     }
 
     @Throws(SpotDLException::class)
-    fun updateSpotDL(appContext: Context, apiUrl: String? = null): UpdateStatus? {
+    fun updateSpotDL(appContext: Context): UpdateStatus? {
         assertInit()
         return try {
             SpotDLUpdater.update(appContext)
