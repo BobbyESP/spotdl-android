@@ -19,7 +19,7 @@ object FilesUtil {
 
     fun File.ensure(): File {
         if (!exists()) {
-            mkdir()
+            this.mkdir()
         }
         return this
     }

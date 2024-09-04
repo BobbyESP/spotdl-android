@@ -39,6 +39,7 @@ abstract class SpotDLCore {
     private lateinit var ENV_PYTHONHOME: String
     private lateinit var HOME: String
     private lateinit var LDFLAGS: String
+    private lateinit var TMPDIR: String
 
     private val pythonLibVersion = "pythonLibVersion"
 
@@ -75,6 +76,7 @@ abstract class SpotDLCore {
         ENV_SSL_CERT_FILE = pythonDir.absolutePath + "/usr/etc/tls/cert.pem"
         ENV_PYTHONHOME = pythonDir.absolutePath + "/usr"
         HOME = baseDirectory.absolutePath
+        TMPDIR = context.cacheDir.absolutePath
         LDFLAGS = "-L" + pythonDir.absolutePath + "/usr/lib -rdynamic"
 
         try {
@@ -191,9 +193,10 @@ abstract class SpotDLCore {
         processBuilder.environment().apply {
             this["LD_LIBRARY_PATH"] = ENV_LD_LIBRARY_PATH
             this["SSL_CERT_FILE"] = ENV_SSL_CERT_FILE
-            this["PATH"] = System.getenv("PATH")!! + ":" + binariesDirectory.absolutePath
+            this["PATH"] = System.getenv("PATH") + ":" + binariesDirectory.absolutePath
             this["PYTHONHOME"] = ENV_PYTHONHOME
-            this["HOME"] = HOME
+            this["HOME"] = HOME //ENV_PYTHONHOME
+//            this["TMPDIR"] = TMPDIR
             this["LDFLAGS"] = LDFLAGS
             this["TERM"] = "xterm-256color"
             this["FORCE_COLOR"] = "true"
@@ -204,6 +207,7 @@ abstract class SpotDLCore {
         } catch (e: IOException) {
             throw SpotDLException(e)
         }
+
         if (processId != null) {
             idProcessMap[processId] = process
         }
@@ -221,6 +225,7 @@ abstract class SpotDLCore {
             if (processId != null) idProcessMap.remove(processId)
             throw e
         }
+
         val out = outBuffer.toString()
         val err = errBuffer.toString()
 
@@ -228,6 +233,7 @@ abstract class SpotDLCore {
             if (processId != null && !idProcessMap.containsKey(processId)) throw CanceledException()
             if (!ignoreErrors(request, out)) {
                 idProcessMap.remove(processId)
+                Log.e("SpotDL", "Error occurred. $err, $out, $exitCode")
                 throw SpotDLException(err)
             }
         }

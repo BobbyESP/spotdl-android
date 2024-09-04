@@ -6,7 +6,6 @@ plugins {
     alias(libs.plugins.kotlin.parcelize)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.hilt)
-    kotlin("kapt")
 }
 
 val splitApks = !project.hasProperty("noSplits")
@@ -135,7 +134,7 @@ dependencies {
 
     //DI (Dependency Injection - Hilt)
     implementation(libs.bundles.hilt)
-    kapt(libs.bundles.hilt.kapt)
+    ksp(libs.bundles.hilt.kapt)
 
     implementation(libs.mmkv)
 
