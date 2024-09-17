@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -9,6 +11,10 @@ plugins {
 }
 
 val splitApks = !project.hasProperty("noSplits")
+
+val localProperties = Properties().apply {
+    load(project.rootDir.resolve("local.properties").inputStream())
+}
 
 android {
     namespace = "com.bobbyesp.spotdl_android"
@@ -39,12 +45,20 @@ android {
         abi {
             isEnable = !project.hasProperty("noSplits")
             reset()
-            include("arm64-v8a", "armeabi-v7a", "x86", "x86_64")
+            include("arm64-v8a", "armeabi-v7a")
             isUniversalApk = false
         }
     }
 
     buildTypes {
+        all {
+            buildConfigField(
+                "String", "CLIENT_ID", "\"${localProperties.getProperty("CLIENT_ID")}\""
+            )
+            buildConfigField(
+                "String", "CLIENT_SECRET", "\"${localProperties.getProperty("CLIENT_SECRET")}\""
+            )
+        }
         release {
             isMinifyEnabled = true
             proguardFiles(

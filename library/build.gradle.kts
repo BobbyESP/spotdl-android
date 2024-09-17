@@ -1,4 +1,5 @@
-@Suppress("DSL_SCOPE_VIOLATION") // TODO: Remove once KTIJ-19369 is fixed
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.androidLibrary)
     alias(libs.plugins.kotlin.android)
@@ -7,6 +8,10 @@ plugins {
 }
 
 val versionName = rootProject.extra["versionName"] as String
+
+val localProperties = Properties().apply {
+    load(project.rootDir.resolve("local.properties").inputStream())
+}
 
 android {
     namespace = "com.bobbyesp.library"
@@ -31,6 +36,14 @@ android {
     }
 
     buildTypes {
+        all {
+            buildConfigField(
+                "String", "CLIENT_ID", "\"${localProperties.getProperty("CLIENT_ID")}\""
+            )
+            buildConfigField(
+                "String", "CLIENT_SECRET", "\"${localProperties.getProperty("CLIENT_SECRET")}\""
+            )
+        }
         release {
             isMinifyEnabled = false
             proguardFiles(

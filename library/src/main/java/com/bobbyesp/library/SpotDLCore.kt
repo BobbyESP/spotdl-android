@@ -167,11 +167,9 @@ abstract class SpotDLCore {
 
         request.addOption("--ffmpeg", ffmpegPath!!.absolutePath)
         // disable caching unless explicitly requested
-        if (!request.hasOption("--cache-path")
-            ||
-            request.getOption("--cache-dir") == null
-            ||
-            request.hasOption("--use-cache-file")
+        if (!request.hasOption("--cache-path") || request.getOption("--cache-dir") == null || request.hasOption(
+                "--use-cache-file"
+            )
         ) {
             request.addOption("--no-cache")
         }
@@ -246,7 +244,11 @@ abstract class SpotDLCore {
     }
 
     @Throws(SpotDLException::class, InterruptedException::class, CanceledException::class)
-    fun getSongInfo(url: String, songId: String = UUID.randomUUID().toString()): List<SpotifySong> {
+    fun getSongInfo(
+        url: String,
+        songId: String = UUID.randomUUID().toString(),
+        extraArguments: Map<String, String>? = null
+    ): List<SpotifySong> {
         assertInit()
         //Make sure that the path exists
         val metadataDirectory = File("$HOME/.spotdl/meta_info/").ensure()
@@ -256,15 +258,20 @@ abstract class SpotDLCore {
         val request = SpotDLRequest()
         request.addOption("save", url)
         request.addOption("--save-file", metadataFile.absolutePath)
+        extraArguments?.forEach { (key, value) -> request.addOption(key, value) }
+
+        //if the --client-id and --client-secret are present in the extraArguments, skip the Spowlo credentials
+
+        if (!request.hasOption("--client-id") || !request.hasOption("--client-secret")) {
+            request.addOption("--client-id", BuildConfig.CLIENT_ID)
+            request.addOption("--client-secret", BuildConfig.CLIENT_SECRET)
+        }
         execute(request, songId, null)
 
         val spotifySongInfo: List<SpotifySong>?
 
         try {
-            val builder = StringBuilder()
-
-            metadataFile.forEachLine { builder.append(it) }
-            spotifySongInfo = json.decodeFromString<List<SpotifySong>>(builder.toString())
+            spotifySongInfo = json.decodeFromString<List<SpotifySong>>(metadataFile.readText())
         } catch (e: Exception) {
             throw SpotDLException("Failed to read/parse the metadata file", e)
         }
@@ -283,9 +290,7 @@ abstract class SpotDLCore {
 
     fun updatePython(appContext: Context, version: String) {
         SharedPrefsHelper.update(
-            appContext,
-            pythonLibVersion,
-            version
+            appContext, pythonLibVersion, version
         )
     }
 
