@@ -40,7 +40,7 @@ coil = "2.6.0"
 
 #Network
 okhttp = "5.0.0-alpha.11"
-ktor = "2.3.6" #For me the best client
+ktor = "2.3.8" #For me the best client
 
 #Dependency injection
 hilt = "2.51"
