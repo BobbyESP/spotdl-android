@@ -24,27 +24,6 @@ android {
         consumerProguardFiles("consumer-rules.pro")
     }
 
-    flavorDimensions.add("bundling")
-    productFlavors {
-        create("bundled") {
-            dimension = "bundling"
-        }
-        create("nonbundled") {
-            dimension = "bundling"
-        }
-    }
-
-    sourceSets {
-        getByName("nonbundled") {
-            java.srcDir("src/nonbundled/java")
-            jniLibs.srcDirs("src/nonbundled/jniLibs")
-        }
-        getByName("bundled") {
-            java.srcDir("src/bundled/java")
-            jniLibs.srcDirs("src/bundled/jniLibs")
-        }
-    }
-
     buildTypes {
         all {
             buildConfigField(
@@ -76,41 +55,20 @@ android {
     }
 
     publishing {
-        singleVariant("bundledRelease") {
-            withSourcesJar()
-            withJavadocJar()
-        }
-        singleVariant("nonbundledRelease") {
+        multipleVariants {
             withSourcesJar()
             withJavadocJar()
         }
     }
 }
 
-tasks.register<Jar>("androidBundledSourcesJar") {
-    archiveClassifier = "sources"
-    from(android.sourceSets.getByName("main").java.srcDirs, android.sourceSets.getByName("bundled").java.srcDirs)
-}
-
-tasks.register<Jar>("androidNonbundledSourcesJar") {
-    archiveClassifier = "sources"
-    from(android.sourceSets.getByName("main").java.srcDirs, android.sourceSets.getByName("nonbundled").java.srcDirs)
-}
-
 afterEvaluate{
     publishing {
         publications {
-            create<MavenPublication>("bundledRelease") {
-                from(components["bundledRelease"])
+            create<MavenPublication>("maven") {
+                from(components["release"])
                 groupId = "com.github.BobbyESP.spotdl_android"
                 artifactId = "library"
-                version = project.version.toString()
-            }
-
-            create<MavenPublication>("nonbundledRelease") {
-                from(components["nonbundledRelease"])
-                groupId = "com.github.BobbyESP.spotdl_android"  // Corregido aquí
-                artifactId = "library-nonbundled"
                 version = project.version.toString()
             }
         }
