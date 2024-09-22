@@ -25,13 +25,23 @@ android {
     }
 
     flavorDimensions.add("bundling")
-
     productFlavors {
         create("bundled") {
             dimension = "bundling"
         }
         create("nonbundled") {
             dimension = "bundling"
+        }
+    }
+
+    sourceSets {
+        getByName("nonbundled") {
+            java.srcDir("src/nonbundled/java")
+            jniLibs.srcDirs("src/nonbundled/jniLibs")
+        }
+        getByName("bundled") {
+            java.srcDir("src/bundled/java")
+            jniLibs.srcDirs("src/bundled/jniLibs")
         }
     }
 
@@ -53,16 +63,6 @@ android {
         }
     }
 
-    sourceSets {
-        getByName("nonbundled") {
-            java.srcDir("src/nonbundled/java")
-            jniLibs.srcDirs("src/nonbundled/jniLibs")
-        }
-        getByName("bundled") {
-            java.srcDir("src/bundled/java")
-            jniLibs.srcDirs("src/bundled/jniLibs")
-        }
-    }
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
@@ -109,7 +109,7 @@ afterEvaluate{
 
             create<MavenPublication>("nonbundledRelease") {
                 from(components["nonbundledRelease"])
-                groupId = "com.github.BobbyESP.spotdldl_android"
+                groupId = "com.github.BobbyESP.spotdl_android"  // Corregido aquí
                 artifactId = "library-nonbundled"
                 version = project.version.toString()
             }
@@ -132,4 +132,3 @@ dependencies {
     androidTestImplementation(libs.androidx.test.ext.junit)
     androidTestImplementation(libs.espresso.core)
 }
-
