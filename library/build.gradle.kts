@@ -27,10 +27,10 @@ android {
     buildTypes {
         all {
             buildConfigField(
-                "String", "CLIENT_ID", "abcad8ba647d4b0ebae797a8f444ac9b"
+                "String", "CLIENT_ID", "\"abcad8ba647d4b0ebae797a8f444ac9b\""
             )
             buildConfigField(
-                "String", "CLIENT_SECRET", "7ac6711e50044f1db20e4610f10f1f98"
+                "String", "CLIENT_SECRET", "\"7ac6711e50044f1db20e4610f10f1f98\""
             )
 
 //            buildConfigField(
