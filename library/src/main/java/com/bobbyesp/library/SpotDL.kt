@@ -2,7 +2,6 @@ package com.bobbyesp.library
 
 import android.content.Context
 import android.util.Log
-import com.bobbyesp.library.SpotDL.isDebug
 import com.bobbyesp.library.util.exceptions.SpotDLException
 import com.bobbyesp.spotdl_common.Constants
 import com.bobbyesp.spotdl_common.domain.Dependency
@@ -26,23 +25,31 @@ object SpotDL : SpotDLCore() {
      */
     @Throws(SpotDLException::class)
     override fun initPython(appContext: Context, pythonDir: File) {
-        val pythonLibrary = File(
-            binariesDirectory, Constants.LibrariesName.PYTHON
-        )
-        if (!pythonDir.exists() || shouldUpdatePython(appContext, pythonLibrary.length().toString())) {
+        val pythonLibrary = File(binariesDirectory, Constants.LibrariesName.PYTHON)
+        val pythonZipSize = pythonLibrary.length().toString()
+
+        if (!pythonDir.exists() || shouldUpdatePython(appContext, pythonZipSize)) {
             FileUtils.deleteQuietly(pythonDir)
             pythonDir.mkdirs()
-            try {
-                if(isDebug) Log.i("SpotDL", "Unzipping Python library")
-                unzip(pythonLibrary, pythonDir)
-                if(isDebug) Log.i("SpotDL", "Unzipped finished for the Python library")
-            } catch (e: Exception) {
-                FileUtils.deleteQuietly(pythonDir)
-                throw SpotDLException("Failed to initialize Python", e)
-            }
+            unzipPythonLibrary(pythonLibrary, pythonDir)
         } else {
-            if(isDebug) Log.i("SpotDL", "Python library already exists or doesn't need to be updated")
+            logDebug("Python library already exists or doesn't need to be updated")
         }
+    }
+
+    private fun unzipPythonLibrary(pythonLibrary: File, pythonDir: File) {
+        try {
+            logDebug("Unzipping Python library")
+            unzip(pythonLibrary, pythonDir)
+            logDebug("Unzipped finished for the Python library")
+        } catch (e: Exception) {
+            FileUtils.deleteQuietly(pythonDir)
+            throw SpotDLException("Failed to initialize Python", e)
+        }
+    }
+
+    private fun logDebug(message: String) {
+        if (isDebug) Log.i("SpotDL", message)
     }
 
     @JvmStatic

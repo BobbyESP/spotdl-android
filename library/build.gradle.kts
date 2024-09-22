@@ -27,11 +27,18 @@ android {
     buildTypes {
         all {
             buildConfigField(
-                "String", "CLIENT_ID", "\"${localProperties.getProperty("CLIENT_ID")}\""
+                "String", "CLIENT_ID", "abcad8ba647d4b0ebae797a8f444ac9b"
             )
             buildConfigField(
-                "String", "CLIENT_SECRET", "\"${localProperties.getProperty("CLIENT_SECRET")}\""
+                "String", "CLIENT_SECRET", "7ac6711e50044f1db20e4610f10f1f98"
             )
+
+//            buildConfigField(
+//                "String", "CLIENT_ID", "\"${localProperties.getProperty("CLIENT_ID")}\""
+//            )
+//            buildConfigField(
+//                "String", "CLIENT_SECRET", "\"${localProperties.getProperty("CLIENT_SECRET")}\""
+//            )
         }
         release {
             isMinifyEnabled = false
