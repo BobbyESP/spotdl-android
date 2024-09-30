@@ -6,6 +6,7 @@ import android.util.Log
 import com.bobbyesp.library.data.local.streams.StreamGobbler
 import com.bobbyesp.library.data.local.streams.StreamProcessExtractor
 import com.bobbyesp.library.data.remote.SpotDLUpdater
+import com.bobbyesp.library.data.remote.auth.SpotifyAuthHandler
 import com.bobbyesp.library.domain.UpdateStatus
 import com.bobbyesp.library.domain.model.SpotifySong
 import com.bobbyesp.library.util.exceptions.CanceledException
@@ -47,6 +48,8 @@ abstract class SpotDLCore {
     protected open val idProcessMap: MutableMap<String, Process> =
         Collections.synchronizedMap(HashMap<String, Process>())
 
+    private val spotifyAuth by lazy { SpotifyAuthHandler() }
+
     internal val isDebug = BuildConfig.DEBUG
 
     open fun init(context: Context) {
@@ -85,6 +88,9 @@ abstract class SpotDLCore {
         } catch (e: Exception) {
             throw SpotDLException("Error initializing SpotDLCore", e)
         }
+
+        spotifyAuth.initializeCredentials()
+
         initialized = true
     }
 
@@ -174,6 +180,11 @@ abstract class SpotDLCore {
             request.addOption("--no-cache")
         }
 
+        if (!request.hasOption("--auth-token")) request.addOption(
+            "--auth-token",
+            spotifyAuth.getCredentials().accessToken
+        )
+
         val spotdlResponse: SpotDLResponse
         val process: Process
         val exitCode: Int
@@ -260,11 +271,8 @@ abstract class SpotDLCore {
         request.addOption("--save-file", metadataFile.absolutePath)
         extraArguments?.forEach { (key, value) -> request.addOption(key, value) }
 
-        //if the --client-id and --client-secret are present in the extraArguments, skip the Spowlo credentials
-
-        if (!request.hasOption("--client-id") || !request.hasOption("--client-secret")) {
-            request.addOption("--client-id", BuildConfig.CLIENT_ID)
-            request.addOption("--client-secret", BuildConfig.CLIENT_SECRET)
+        if (!request.hasOption("--auth-token")) {
+            request.addOption("--auth-token", spotifyAuth.getCredentials().accessToken)
         }
         execute(request, songId, null)
 

@@ -5,9 +5,10 @@ import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.engine.android.Android
 import io.ktor.client.request.get
+import kotlinx.serialization.SerializationException
 
 object Ktor {
-    val client = HttpClient(Android.create {
+    val client = HttpClient(    Android.create {
         connectTimeout = 10_000 //ms
         socketTimeout = 10_000 //ms
     }) {
@@ -15,8 +16,8 @@ object Ktor {
     }
 
     @Throws(Exception::class)
-    suspend inline fun <reified T> makeApiCall(
-        client: HttpClient,
+    suspend inline fun <reified T> get(
+        client: HttpClient = this.client,
         url: String,
         params: Map<String, String>?
     ): T {
@@ -30,8 +31,10 @@ object Ktor {
 
         return try {
             json.decodeFromString<T>(response)
+        } catch (e: SerializationException) {
+            throw SerializationException("Something bad happened while trying to deserialize the response: \n $response", e)
         } catch (e: Exception) {
-            throw Exception("Failed to parse response: $response", e)
+            throw Exception("An unknown error occurred while trying to deserialize the response: \n $response", e)
         }
     }
 }

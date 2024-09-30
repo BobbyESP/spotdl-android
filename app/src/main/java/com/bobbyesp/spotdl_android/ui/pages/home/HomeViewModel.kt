@@ -85,8 +85,6 @@ class HomeViewModel @Inject constructor() : ViewModel() {
                     val request = SpotDLRequest()
                     request.addOption("download", link)
                     request.addOption("--log-level", "DEBUG")
-                    request.addOption("--client-id", BuildConfig.CLIENT_ID)
-                    request.addOption("--client-secret", BuildConfig.CLIENT_SECRET)
                     //request.addOption("--simple-tui")
                     request.addOption("--output", downloadDir.absolutePath)
 

@@ -17,7 +17,7 @@ import com.bobbyesp.spotdl_common.domain.model.getMissingDependencies
 import com.bobbyesp.spotdl_common.domain.model.updates.Release
 import com.bobbyesp.spotdl_common.utils.ZipUtils.unzip
 import com.bobbyesp.spotdl_common.utils.network.Ktor.client
-import com.bobbyesp.spotdl_common.utils.network.Ktor.makeApiCall
+import com.bobbyesp.spotdl_common.utils.network.Ktor.get
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import org.apache.commons.io.FileUtils
@@ -173,7 +173,7 @@ object DependenciesUtil {
 
     @Throws(Exception::class)
     suspend fun getRelease(releaseUrl: String = LATEST_RELEASE): Release? {
-        return makeApiCall<Release?>(client, releaseUrl, null)
+        return get<Release?>(client, releaseUrl, null)
     }
 
     @Throws(Exception::class)
