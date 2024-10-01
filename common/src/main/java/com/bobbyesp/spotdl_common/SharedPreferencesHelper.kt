@@ -2,7 +2,7 @@ package com.bobbyesp.spotdl_common
 
 import android.content.Context
 
-object SharedPrefsHelper {
+object SharedPreferencesHelper {
     private const val sharedPrefsName = "spotdl-android"
 
     fun update(appContext: Context, key: String?, value: String?) {

@@ -14,7 +14,7 @@ import com.bobbyesp.library.util.exceptions.SpotDLException
 import com.bobbyesp.spotdl_common.Constants
 import com.bobbyesp.spotdl_common.Constants.LIBRARY_NAME
 import com.bobbyesp.spotdl_common.Constants.PACKAGES_ROOT_NAME
-import com.bobbyesp.spotdl_common.SharedPrefsHelper
+import com.bobbyesp.spotdl_common.SharedPreferencesHelper
 import com.bobbyesp.spotdl_common.domain.Dependency
 import com.bobbyesp.spotdl_common.domain.model.DownloadedDependencies
 import com.bobbyesp.spotdl_common.utils.dependencies.dependencyDownloadCallback
@@ -297,12 +297,12 @@ abstract class SpotDLCore {
     }
 
     fun updatePython(appContext: Context, version: String) {
-        SharedPrefsHelper.update(
+        SharedPreferencesHelper.update(
             appContext, pythonLibVersion, version
         )
     }
 
     fun shouldUpdatePython(appContext: Context, version: String): Boolean {
-        return version != SharedPrefsHelper[appContext, pythonLibVersion]
+        return version != SharedPreferencesHelper[appContext, pythonLibVersion]
     }
 }

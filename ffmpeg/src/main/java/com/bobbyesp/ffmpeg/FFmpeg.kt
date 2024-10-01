@@ -1,7 +1,7 @@
 package com.bobbyesp.ffmpeg
 
 import android.content.Context
-import com.bobbyesp.spotdl_common.SharedPrefsHelper
+import com.bobbyesp.spotdl_common.SharedPreferencesHelper
 import com.bobbyesp.library.util.exceptions.SpotDLException
 import com.bobbyesp.spotdl_common.utils.ZipUtils.unzip
 import org.apache.commons.io.FileUtils
@@ -41,11 +41,11 @@ object FFmpeg {
     }
 
     private fun shouldUpdateFFmpeg(appContext: Context, version: String): Boolean {
-        return version != SharedPrefsHelper[appContext, ffmpegLibVersion]
+        return version != SharedPreferencesHelper[appContext, ffmpegLibVersion]
     }
 
     private fun updateFFmpeg(appContext: Context, version: String) {
-        SharedPrefsHelper.update(appContext, ffmpegLibVersion, version)
+        SharedPreferencesHelper.update(appContext, ffmpegLibVersion, version)
     }
 
     @JvmStatic

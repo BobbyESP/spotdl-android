@@ -7,7 +7,7 @@ import com.bobbyesp.library.domain.UpdateStatus
 import com.bobbyesp.library.util.exceptions.SpotDLException
 import com.bobbyesp.spotdl_common.Constants
 import com.bobbyesp.spotdl_common.Constants.LIBRARY_NAME
-import com.bobbyesp.spotdl_common.SharedPrefsHelper
+import com.bobbyesp.spotdl_common.SharedPreferencesHelper
 import com.bobbyesp.spotdl_common.domain.model.updates.Release
 import com.bobbyesp.spotdl_common.utils.json
 import kotlinx.serialization.ExperimentalSerializationApi
@@ -53,8 +53,8 @@ internal object SpotDLUpdater {
     }
 
     private fun updateSharedPrefs(appContext: Context, tag: String, name: String) {
-        SharedPrefsHelper.update(appContext, SPOTDL_VERSION_KEY, tag)
-        SharedPrefsHelper.update(appContext, SPOTDL_VERSION_NAME_KEY, name)
+        SharedPreferencesHelper.update(appContext, SPOTDL_VERSION_KEY, tag)
+        SharedPreferencesHelper.update(appContext, SPOTDL_VERSION_NAME_KEY, name)
     }
 
     @OptIn(ExperimentalSerializationApi::class)
@@ -63,7 +63,7 @@ internal object SpotDLUpdater {
         val url = URL(SPOTDL_RELEASES_URL)
         val json = json.decodeFromStream<Release>(url.openStream())
         val newVersion = json.tag_name
-        val oldVersion = SharedPrefsHelper[appContext, SPOTDL_VERSION_KEY]
+        val oldVersion = SharedPreferencesHelper[appContext, SPOTDL_VERSION_KEY]
         return if (newVersion == oldVersion) {
             Log.i("SpotDLUpdater", "SpotDL is up to date. Current version: $oldVersion")
             null
@@ -98,10 +98,10 @@ internal object SpotDLUpdater {
     }
 
     fun version(appContext: Context?): String? {
-        return SharedPrefsHelper[appContext!!, SPOTDL_VERSION_KEY]
+        return SharedPreferencesHelper[appContext!!, SPOTDL_VERSION_KEY]
     }
 
     fun versionName(appContext: Context?): String? {
-        return SharedPrefsHelper[appContext!!, SPOTDL_VERSION_NAME_KEY]
+        return SharedPreferencesHelper[appContext!!, SPOTDL_VERSION_NAME_KEY]
     }
 }
