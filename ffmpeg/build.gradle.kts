@@ -59,7 +59,7 @@ afterEvaluate {
                 from(components["release"])
                 groupId = "com.github.BobbyESP.spotdl_android"
                 artifactId = "ffmpeg"
-                version = project.version.toString()
+                version = versionName
             }
         }
     }

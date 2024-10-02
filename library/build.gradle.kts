@@ -61,7 +61,7 @@ afterEvaluate{
                 from(components["release"])
                 groupId = "com.github.BobbyESP.spotdl_android"
                 artifactId = "library"
-                version = project.version.toString()
+                version = versionName
             }
         }
     }
