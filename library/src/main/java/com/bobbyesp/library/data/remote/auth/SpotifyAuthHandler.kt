@@ -19,28 +19,39 @@ class SpotifyAuthHandler {
         }
     }
 
-    private suspend fun createCredentials(): SpotifyCredentials = withContext(coroutineScope.coroutineContext) {
-        Ktor.get<SpotifyCredentials>(
-            url = tokenGeneratorUrl,
-            params = null
-        )
-    }
+    private suspend fun createCredentials(): SpotifyCredentials =
+        withContext(coroutineScope.coroutineContext) {
+            Ktor.get<SpotifyCredentials>(
+                url = tokenGeneratorUrl,
+                params = null
+            )
+        }
 
     @Throws(IllegalStateException::class, SpotifyTokenExpired::class)
     fun getCredentials(): SpotifyCredentials {
-        if (!::credentials.isInitialized) {
-            throw IllegalStateException("Spotify Credentials are not initialized")
+        when {
+            !::credentials.isInitialized -> throw IllegalStateException("Spotify Credentials are not initialized. Please try again in 10 seconds.")
+            credentials.isExpired() -> throw SpotifyTokenExpired("The Spotify Web Player token has expired. Request a new one and try again.")
+            else -> return credentials
         }
-
-        if (credentials.isExpired()) {
-            throw SpotifyTokenExpired("The Spotify Web Player token has expired. Request a new one and try again.")
-        }
-
-        return credentials
     }
 
-    suspend fun refreshCredentials() {
-        credentials = createCredentials()
+    /**
+     * Refreshes the Spotify credentials by fetching new credentials from the token generator URL.
+     * This function launches a coroutine to perform the network request on the IO dispatcher.
+     *
+     * @return `true` if the new credentials are valid (i.e., the access token is not empty and not expired),
+     *         `false` otherwise.
+     */
+    fun refreshCredentials(): Boolean {
+        coroutineScope.launch(Dispatchers.IO) {
+            val newCredentials = createCredentials()
+            if (newCredentials.accessToken.isNotEmpty()) {
+                credentials = newCredentials
+            }
+        }
+
+        return (credentials.accessToken.isNotEmpty() && !credentials.isExpired())
     }
 
     fun initializeCredentials() {

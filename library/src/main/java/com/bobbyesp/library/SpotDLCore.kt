@@ -8,6 +8,7 @@ import com.bobbyesp.library.data.local.streams.StreamProcessExtractor
 import com.bobbyesp.library.data.remote.SpotDLUpdater
 import com.bobbyesp.library.data.remote.auth.SpotifyAuthHandler
 import com.bobbyesp.library.domain.UpdateStatus
+import com.bobbyesp.library.domain.auth.SpotifyTokenExpired
 import com.bobbyesp.library.domain.model.SpotifySong
 import com.bobbyesp.library.util.exceptions.CanceledException
 import com.bobbyesp.library.util.exceptions.SpotDLException
@@ -179,11 +180,36 @@ abstract class SpotDLCore {
         ) {
             request.addOption("--no-cache")
         }
+        var spotifyCredentials = runCatching {
+            spotifyAuth.getCredentials()
+        }.onFailure { th ->
+            when (th) {
+                is SpotifyTokenExpired -> {
+                    Log.e("SpotDL", "Spotify token expired. Refreshing token.")
+                    spotifyAuth.refreshCredentials()
+                }
 
-        if (!request.hasOption("--auth-token")) request.addOption(
-            "--auth-token",
-            spotifyAuth.getCredentials().accessToken
-        )
+                else -> {
+                    Log.e("SpotDL", "Failed to get Spotify Credentials", th)
+                }
+            }
+        }.getOrNull()
+
+        // Retry getting the credentials if they were refreshed
+        if (spotifyCredentials == null || spotifyCredentials.isExpired()) {
+            spotifyCredentials = runCatching {
+                spotifyAuth.getCredentials()
+            }.onFailure { th ->
+                Log.e("SpotDL", "Failed to get Spotify Credentials after refresh", th)
+            }.getOrNull()
+        }
+
+        spotifyCredentials?.let {
+            if (!request.hasOption("--auth-token")) {
+                request.addOption("--auth-token", it.accessToken)
+            }
+        }
+
 
         val spotdlResponse: SpotDLResponse
         val process: Process
