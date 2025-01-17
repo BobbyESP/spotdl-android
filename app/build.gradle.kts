@@ -19,11 +19,11 @@ val localProperties = Properties().apply {
 android {
     namespace = "com.bobbyesp.spotdl_android"
 
-    compileSdk = 34
+    compileSdk = 35
     defaultConfig {
         applicationId = "com.bobbyesp.spotdl_android"
         minSdk = 24
-        targetSdk = 34
+        targetSdk = 35
         versionCode = rootProject.extra["versionCode"] as Int
         versionName = rootProject.extra["versionName"] as String
 

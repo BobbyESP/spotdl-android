@@ -8,7 +8,7 @@ val versionName = rootProject.extra["versionName"] as String
 
 android {
     namespace = "com.bobbyesp.ffmpeg"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         minSdk = 24

@@ -32,6 +32,7 @@ object SpotDL : SpotDLCore() {
             FileUtils.deleteQuietly(pythonDir)
             pythonDir.mkdirs()
             unzipPythonLibrary(pythonLibrary, pythonDir)
+            updatePython(appContext, pythonZipSize)
         } else {
             logDebug("Python library already exists or doesn't need to be updated")
         }

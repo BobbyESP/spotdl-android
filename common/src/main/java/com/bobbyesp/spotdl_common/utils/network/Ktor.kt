@@ -8,10 +8,12 @@ import io.ktor.client.request.get
 import kotlinx.serialization.SerializationException
 
 object Ktor {
-    val client = HttpClient(    Android.create {
-        connectTimeout = 10_000 //ms
-        socketTimeout = 10_000 //ms
-    }) {
+    val client = HttpClient(
+        Android.create {
+            connectTimeout = 10_000 //ms
+            socketTimeout = 10_000 //ms
+        }
+    ) {
         //Here we can add proxy support and more things
     }
 
@@ -32,9 +34,15 @@ object Ktor {
         return try {
             json.decodeFromString<T>(response)
         } catch (e: SerializationException) {
-            throw SerializationException("Something bad happened while trying to deserialize the response: \n $response", e)
+            throw SerializationException(
+                "Something bad happened while trying to deserialize the response: \n $response",
+                e
+            )
         } catch (e: Exception) {
-            throw Exception("An unknown error occurred while trying to deserialize the response: \n $response", e)
+            throw Exception(
+                "An unknown error occurred while trying to deserialize the response: \n $response",
+                e
+            )
         }
     }
 }

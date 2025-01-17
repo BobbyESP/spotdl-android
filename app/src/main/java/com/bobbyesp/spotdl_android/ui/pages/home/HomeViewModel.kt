@@ -10,6 +10,7 @@ import androidx.lifecycle.ViewModel
 import com.bobbyesp.library.SpotDL
 import com.bobbyesp.library.SpotDLRequest
 import com.bobbyesp.library.domain.model.SpotifySong
+import com.bobbyesp.library.util.Hash
 import com.bobbyesp.spotdl_android.App.Companion.applicationScope
 import com.bobbyesp.spotdl_android.App.Companion.context
 import com.bobbyesp.spotdl_android.BuildConfig
@@ -76,7 +77,10 @@ class HomeViewModel @Inject constructor() : ViewModel() {
                     )
 
                     //Request song info
-                    val songInfo = SpotDL.getInstance().getSongInfo(link)
+                    val songInfo = SpotDL.getInstance().getSongInfo(
+                        query = link,
+                        songId = Hash.sha1(link)
+                    )
 
                     mutableTaskState.update {
                         it.copy(spotifySongInfo = songInfo)
@@ -106,7 +110,7 @@ class HomeViewModel @Inject constructor() : ViewModel() {
         }
     }
 
-    fun cancelDownload(id: String){
+    fun cancelDownload(id: String) {
         currentJob?.cancel()
         try {
             SpotDL.getInstance().destroyProcessById(id)
@@ -115,6 +119,7 @@ class HomeViewModel @Inject constructor() : ViewModel() {
             Log.d("MainActivity", "Error cancelling download. ${e.message}")
         }
     }
+
     fun requestSongInfo(url: String): List<SpotifySong> {
         var info: List<SpotifySong> = emptyList()
         currentJob?.cancel()
@@ -148,7 +153,7 @@ class HomeViewModel @Inject constructor() : ViewModel() {
         context.startActivity(intent)
     }
 
-    private fun cleanUpDownload(){
+    private fun cleanUpDownload() {
         mutableTaskState.update {
             it.copy(progress = 0f, isDownloading = false, progressText = "")
         }
@@ -166,9 +171,9 @@ class HomeViewModel @Inject constructor() : ViewModel() {
         intent.setDataAndType(uri, "*/*")
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         val activities = packageManager.queryIntentActivities(intent, 0)
-        if(activities.isNotEmpty()){
+        if (activities.isNotEmpty()) {
             context.startActivity(intent)
-        }else{
+        } else {
             Toast.makeText(context, "No file manager found", Toast.LENGTH_SHORT).show()
         }
     }

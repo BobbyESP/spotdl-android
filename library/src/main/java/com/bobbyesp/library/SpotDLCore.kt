@@ -10,6 +10,7 @@ import com.bobbyesp.library.data.remote.auth.SpotifyAuthHandler
 import com.bobbyesp.library.domain.UpdateStatus
 import com.bobbyesp.library.domain.auth.SpotifyTokenExpired
 import com.bobbyesp.library.domain.model.SpotifySong
+import com.bobbyesp.library.util.Hash
 import com.bobbyesp.library.util.exceptions.CanceledException
 import com.bobbyesp.library.util.exceptions.SpotDLException
 import com.bobbyesp.spotdl_common.Constants
@@ -25,7 +26,6 @@ import org.apache.commons.io.FileUtils
 import java.io.File
 import java.io.IOException
 import java.util.Collections
-import java.util.UUID
 
 abstract class SpotDLCore {
     private var initialized = false
@@ -282,8 +282,8 @@ abstract class SpotDLCore {
 
     @Throws(SpotDLException::class, InterruptedException::class, CanceledException::class)
     fun getSongInfo(
-        url: String,
-        songId: String = UUID.randomUUID().toString(),
+        query: String,
+        songId: String = Hash.sha1(query),
         extraArguments: Map<String, String>? = null
     ): List<SpotifySong> {
         assertInit()
@@ -291,16 +291,19 @@ abstract class SpotDLCore {
         val metadataDirectory = File("$HOME/.spotdl/meta_info/").ensure()
 
         val metadataFile = File(metadataDirectory, "$songId.spotdl")
-        //UUID for song identification
-        val request = SpotDLRequest()
-        request.addOption("save", url)
-        request.addOption("--save-file", metadataFile.absolutePath)
-        extraArguments?.forEach { (key, value) -> request.addOption(key, value) }
 
-        if (!request.hasOption("--auth-token")) {
-            request.addOption("--auth-token", spotifyAuth.getCredentials().accessToken)
+        if(!metadataFile.exists()) {
+            //UUID for song identification
+            val request = SpotDLRequest()
+            request.addOption("save", query)
+            request.addOption("--save-file", metadataFile.absolutePath)
+            extraArguments?.forEach { (key, value) -> request.addOption(key, value) }
+
+            if (!request.hasOption("--auth-token")) {
+                request.addOption("--auth-token", spotifyAuth.getCredentials().accessToken)
+            }
+            execute(request, songId, null)
         }
-        execute(request, songId, null)
 
         val spotifySongInfo: List<SpotifySong>?
 
